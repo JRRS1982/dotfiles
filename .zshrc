@@ -1,0 +1,1 @@
+/home/jeremy-smith/Projects/dotfiles/zsh/.zshrc
