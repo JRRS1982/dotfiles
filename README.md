@@ -1,10 +1,12 @@
 # Dotfiles.git
 
-This is my attempt at implementing the `bare git` repository method for managing the dotfiles on my personal laptop, i.e. no working directory / files in the local project (including this readme!).
+This is my attempt at implementing the `bare git` repository method for managing the dotfiles on my personal laptop, where your dotfiles live in `$HOME` and Git metadata lives in `$HOME/.dotfiles.git`.
 
 Dotfiles are configuration files, I want to store them in a remote git repository in case my local machine fails and i lose them. With this approach your dotfiles remain on your computer in `$HOME` (e.g. `~/.zshrc`) on your machine, and git metadata lives in `$HOME/.dotfiles.git`, so that it can be tracked and saved to the remote repo.
 
 The git metadata is tracking the files are outside of this repository so you will not see any files in this project locally. The `work-tree` is `$HOME` (where your dotfiles typically belong) and the `git-dir` is `$HOME/.dotfiles.git` (where the git metadata lives).
+
+For repo-only files like this `README.md`, it can be simpler to use a dedicated worktree directory (for example `~/.dotfiles-worktree`) and edit/commit/push from there.
 
 ## Setup
 
@@ -72,7 +74,7 @@ dotfiles pull
 
 ## Thanks to
 
-- <https://web.archive.org/web/20240307132655/https://engineeringwith.kalkayan.com/series/developer-experience/storing-dotfiles-with-git-this-is-the-way/> for a detailed explanation of this method 
+- <https://web.archive.org/web/20240307132655/https://engineeringwith.kalkayan.com/series/developer-experience/storing-dotfiles-with-git-this-is-the-way/> for a detailed explanation of this method
 - <https://askubuntu.com/questions/1316229/is-it-bad-practice-to-git-init-in-the-home-directory-to-keep-track-of-dot-files/1316230#comment2240922_1316230> where i learnt that bare git repositories typically end in `.git`, hence this repository is called `.dotfiles.git`
 - <https://askubuntu.com/questions/1316229/is-it-bad-practice-to-git-init-in-the-home-directory-to-keep-track-of-dot-files/1316230#1316230> where i learnt how to setup a bare git repository
 - <https://news.ycombinator.com/item?id=11071754> where i read more about bare git repositories
