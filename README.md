@@ -1,6 +1,6 @@
 # Dotfiles.git
 
-This is my attempt at implementing the `bare git` repository method for managing the dotfiles on my personal laptop, i.e. no working directory / files in the local project.
+This is my attempt at implementing the `bare git` repository method for managing the dotfiles on my personal laptop, i.e. no working directory / files in the local project (including this readme!).
 
 Dotfiles are configuration files, I want to store them in a remote git repository in case my local machine fails and i lose them. With this approach your dotfiles remain on your computer in `$HOME` (e.g. `~/.zshrc`) on your machine, and git metadata lives in `$HOME/.dotfiles.git`, so that it can be tracked and saved to the remote repo.
 
