@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
 set -e
 
-DOTFILES="$HOME/Repos/dotfiles"
+DOTFILES="$HOME/PersonalProjects/dotfiles"
 REPO="git@github.com:JRRS1982/dotfiles.git"
+
+echo "==> Checking git version (hasconfig identity routing needs >= 2.36)..."
+NEED="2.36.0"
+HAVE="$(git --version | awk '{print $3}')"
+if [ "$(printf '%s\n%s\n' "$NEED" "$HAVE" | sort -V | head -1)" != "$NEED" ]; then
+    echo "    ERROR: git $HAVE found; need >= $NEED for hasconfig. Upgrade git first." >&2
+    exit 1
+fi
+echo "    git $HAVE OK."
 
 echo "==> Installing zsh, git, and gh..."
 sudo dnf install -y zsh git gh
@@ -40,7 +49,7 @@ echo "==> Cloning dotfiles repo..."
 if [ -d "$DOTFILES/.git" ]; then
     echo "    Already cloned."
 else
-    mkdir -p "$HOME/Repos"
+    mkdir -p "$HOME/PersonalProjects"
     git clone "$REPO" "$DOTFILES"
 fi
 
@@ -63,13 +72,19 @@ else
 fi
 
 echo "==> Creating symlinks..."
-ln -sf "$DOTFILES/.zshrc" "$HOME/.zshrc"
-ln -sf "$DOTFILES/.gitconfig" "$HOME/.gitconfig"
+ln -sf  "$DOTFILES/.zshrc"                 "$HOME/.zshrc"
+ln -sf  "$DOTFILES/.gitconfig"             "$HOME/.gitconfig"
+ln -sf  "$DOTFILES/.gitconfig-personal"    "$HOME/.gitconfig-personal"
+ln -sf  "$DOTFILES/.gitconfig-work"        "$HOME/.gitconfig-work"
 mkdir -p "$HOME/.claude"
-ln -sf "$DOTFILES/.claude/settings.json" "$HOME/.claude/settings.json"
-echo "    ~/.zshrc -> $DOTFILES/.zshrc"
-echo "    ~/.gitconfig -> $DOTFILES/.gitconfig"
-echo "    ~/.claude/settings.json -> $DOTFILES/.claude/settings.json"
+ln -sf  "$DOTFILES/.claude/settings.json"  "$HOME/.claude/settings.json"
+ln -sf  "$DOTFILES/.claude/CLAUDE.md"      "$HOME/.claude/CLAUDE.md"
+ln -sfn "$DOTFILES/.claude/skills"         "$HOME/.claude/skills"
+echo "    Linked: .zshrc, .gitconfig(+personal/work), .claude/{settings.json,CLAUDE.md,skills}"
+
+echo "==> Bootstrapping machine-local files (not tracked)..."
+[ -f "$HOME/.zshrc.local" ]           || { touch "$HOME/.zshrc.local"; echo "    created ~/.zshrc.local (add machine-specific config here)"; }
+[ -f "$HOME/.claude/CLAUDE.local.md" ] || { touch "$HOME/.claude/CLAUDE.local.md"; echo "    created ~/.claude/CLAUDE.local.md (add machine-specific Claude context here)"; }
 
 echo ""
 echo "Done! Open a new terminal (or run: exec zsh) to start using zsh."
