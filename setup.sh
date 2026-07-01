@@ -73,6 +73,7 @@ fi
 
 echo "==> Creating symlinks..."
 ln -sf  "$DOTFILES/.zshrc"                 "$HOME/.zshrc"
+ln -sf  "$DOTFILES/.zsh_aliases"           "$HOME/.zsh_aliases"
 ln -sf  "$DOTFILES/.gitconfig"             "$HOME/.gitconfig"
 ln -sf  "$DOTFILES/.gitconfig-personal"    "$HOME/.gitconfig-personal"
 ln -sf  "$DOTFILES/.gitconfig-work"        "$HOME/.gitconfig-work"
@@ -80,7 +81,7 @@ mkdir -p "$HOME/.claude"
 ln -sf  "$DOTFILES/.claude/settings.json"  "$HOME/.claude/settings.json"
 ln -sf  "$DOTFILES/.claude/CLAUDE.md"      "$HOME/.claude/CLAUDE.md"
 ln -sfn "$DOTFILES/.claude/skills"         "$HOME/.claude/skills"
-echo "    Linked: .zshrc, .gitconfig(+personal/work), .claude/{settings.json,CLAUDE.md,skills}"
+echo "    Linked: .zshrc, .zsh_aliases, .gitconfig(+personal/work), .claude/{settings.json,CLAUDE.md,skills}"
 
 echo "==> Bootstrapping machine-local files (not tracked)..."
 [ -f "$HOME/.zshrc.local" ]           || { touch "$HOME/.zshrc.local"; echo "    created ~/.zshrc.local (add machine-specific config here)"; }

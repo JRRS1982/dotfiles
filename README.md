@@ -43,6 +43,7 @@ get the change.
 | Repo file | Symlinked to |
 |---|---|
 | `.zshrc` | `~/.zshrc` |
+| `.zsh_aliases` | `~/.zsh_aliases` |
 | `.gitconfig` | `~/.gitconfig` |
 | `.gitconfig-personal` | `~/.gitconfig-personal` |
 | `.gitconfig-work` | `~/.gitconfig-work` |
