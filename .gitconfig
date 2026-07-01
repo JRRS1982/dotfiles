@@ -1,12 +1,28 @@
-[user]
-	email = jeremyrrsmith@gmail.com
-	name = jeremyrrsmith
+# Shared git config — routing only. Symlinked from the dotfiles repo.
+#
+# Identity is NOT set here on purpose (fail-closed): a repo whose remote
+# matches none of the rules below will make git refuse to commit until you
+# set user.name/user.email, instead of silently using a wrong identity.
+#
+# Identity is selected by REMOTE URL via hasconfig (requires git >= 2.36),
+# so it is correct regardless of where the repo lives on disk.
 
-[include]
-	path = ~/.gitconfig.local
+[pull]
+	rebase = false
+
 [credential "https://github.com"]
-	helper = 
+	helper =
 	helper = !/usr/bin/gh auth git-credential
 [credential "https://gist.github.com"]
-	helper = 
+	helper =
 	helper = !/usr/bin/gh auth git-credential
+
+# Personal — any JRRS1982 remote (https or ssh)
+[includeIf "hasconfig:remote.*.url:https://github.com/JRRS1982/**"]
+	path = ~/.gitconfig-personal
+[includeIf "hasconfig:remote.*.url:git@github.com:JRRS1982/**"]
+	path = ~/.gitconfig-personal
+
+# Work — any remote whose URL contains "mvf"
+[includeIf "hasconfig:remote.*.url:**mvf**"]
+	path = ~/.gitconfig-work
