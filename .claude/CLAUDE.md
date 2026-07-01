@@ -7,7 +7,7 @@ which is imported below and is NOT tracked in the dotfiles repo.
 ## Commits
 
 - Prefix commit messages with the branch name, e.g. `GOLD-123: add avatar upload`
-  (the `/jrrs-gc` skill and the `gc` shell helper both do this automatically).
+  (the `/dotfiles-gc` skill and the `gc` shell helper both do this automatically).
 
 ## Skills
 
