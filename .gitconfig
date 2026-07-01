@@ -23,6 +23,9 @@
 [includeIf "hasconfig:remote.*.url:git@github.com:JRRS1982/**"]
 	path = ~/.gitconfig-personal
 
-# Work — any remote whose URL contains "mvf"
-[includeIf "hasconfig:remote.*.url:**mvf**"]
+# Work — MVF repos on Bitbucket (scp-style and https). hasconfig globs do not
+# cross "/" with a bare *, so anchor the org path explicitly rather than **mvf**.
+[includeIf "hasconfig:remote.*.url:git@bitbucket.org:mvfglobal/**"]
+	path = ~/.gitconfig-work
+[includeIf "hasconfig:remote.*.url:https://bitbucket.org/mvfglobal/**"]
 	path = ~/.gitconfig-work
