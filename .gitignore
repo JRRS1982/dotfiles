@@ -1,0 +1,32 @@
+# Design scaffolding (specs, plans) — kept local, not runtime artifacts
+docs/superpowers/
+
+# Machine-local overrides (created per-machine by setup.sh)
+.zshrc.local
+.claude/CLAUDE.local.md
+
+# Work-specific / private skills — present in the symlinked skills/ dir but never committed.
+# NOTE: only known-private skills are listed here. New skills stay visible (untracked in
+# git status) so you can decide per-skill whether to commit or add to this list.
+.claude/skills/mvf-jira-writer/
+
+# Claude Code runtime state & secrets — never commit if ever nested under the repo
+.claude/.credentials.json
+.claude/history.jsonl
+.claude/projects/
+.claude/sessions/
+.claude/session-env/
+.claude/shell-snapshots/
+.claude/file-history/
+.claude/plugins/
+.claude/cache/
+.claude/paste-cache/
+.claude/debug/
+.claude/telemetry/
+.claude/daemon/
+.claude/tasks/
+.claude/jobs/
+.claude/ide/
+.claude/backups/
+.claude/security/
+.claude/*.log
