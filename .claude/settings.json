@@ -3,7 +3,69 @@
   "permissions": {
     "allow": [
       "Read(~/.zshrc)",
-      "Read(~/.claude/*)"
+      "Read(~/.claude/*)",
+      "Read(~/Projects/*)",
+      "Read(~/PersonalProjects/*)",
+      "Bash(git add *)",
+      "Bash(git push *)",
+      "Bash(git stash *)",
+      "Bash(npx biome *)",
+      "Bash(pnpm audit *)",
+      "Bash(pnpm build *)",
+      "Bash(pnpm check *)",
+      "Bash(pnpm exec *)",
+      "Bash(pnpm jest *)",
+      "Bash(pnpm lint *)",
+      "Bash(pnpm lint:fix)",
+      "Bash(pnpm prisma *)",
+      "Bash(pnpm test *)",
+      "Bash(pnpm tsc *)",
+      "Bash(pnpm typecheck *)",
+      "Bash(pnpm verify *)",
+      "Bash(pnpm dev*)",
+      "Bash(pnpm start*)",
+      "Bash(pnpm preview*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git show*)",
+      "Bash(git fetch*)",
+      "Bash(ls*)",
+      "Bash(cat *)",
+      "Bash(grep *)",
+      "Bash(find *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(which *)",
+      "Bash(echo *)"
     ]
-  }
+  },
+  "model": "claude-opus-4-8[1m]",
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "claude-mem@thedotmack": true,
+    "context7@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "explanatory-output-style@claude-plugins-official": true,
+    "warp@claude-code-warp": true
+  },
+  "extraKnownMarketplaces": {
+    "thedotmack": {
+      "source": {
+        "source": "github",
+        "repo": "thedotmack/claude-mem"
+      }
+    },
+    "claude-code-warp": {
+      "source": {
+        "source": "github",
+        "repo": "warpdotdev/claude-code-warp"
+      }
+    }
+  },
+  "tui": "fullscreen",
+  "skipWorkflowUsageWarning": true,
+  "skipAutoPermissionPrompt": true
 }
