@@ -4,6 +4,30 @@ Personal config files (`.zshrc`, `.gitconfig`, Claude Code settings/skills) trac
 in one repo and **symlinked** into `$HOME`. Editing the symlinked file edits the
 repo — there's nothing to sync, just commit and push.
 
+## How it works (plain English)
+
+A **symlink** ("symbolic link") is a signpost that points at a file living
+somewhere else. When a program opens the signpost, it's really opening the file
+it points to — think of a shortcut on your desktop, or a mail-forwarding address
+that quietly redirects letters to where you actually live.
+
+This repo uses that trick so every machine shares one set of config:
+
+1. The **real** config files live here in this repo (at `~/PersonalProjects/dotfiles`).
+2. In your home folder, files like `~/.zshrc` aren't real files — they're
+   **signposts pointing back into this repo**.
+3. So when your shell reads `~/.zshrc`, it's really reading this repo's copy.
+   When you *edit* `~/.zshrc`, you're really editing this repo's copy.
+
+Because the home-folder files are just signposts, there's nothing to copy back
+and forth:
+
+> **edit the file where it normally lives → it's already changed in the repo →
+> `git push` to publish it → `git pull` on your other computer to receive it.**
+
+One source of truth, no manual syncing. `setup.sh` is the one-time step that puts
+those signposts in place on a new machine (next section).
+
 ## Set up a new machine
 
 Requires git ≥ 2.36 (needed for `hasconfig`-based identity routing, see below).
