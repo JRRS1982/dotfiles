@@ -9,7 +9,11 @@ repo — there's nothing to sync, just commit and push.
 Requires git ≥ 2.36 (needed for `hasconfig`-based identity routing, see below).
 
 ```sh
-git clone git@github.com:JRRS1982/dotfiles.git ~/PersonalProjects/dotfiles
+# On a fresh machine without SSH keys yet, use HTTPS:
+git clone https://github.com/JRRS1982/dotfiles.git ~/PersonalProjects/dotfiles
+# Or use SSH if you already have a GitHub SSH key:
+# git clone git@github.com:JRRS1982/dotfiles.git ~/PersonalProjects/dotfiles
+
 cd ~/PersonalProjects/dotfiles
 ./setup.sh
 ```
