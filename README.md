@@ -18,8 +18,22 @@ cd ~/PersonalProjects/dotfiles
 ./setup.sh
 ```
 
-`setup.sh` checks your git version, creates the symlinks below, and creates
-empty `~/.zshrc.local` and `~/.claude/CLAUDE.local.md` if they don't exist.
+`setup.sh` installs zsh, Oh My Zsh, and nvm, sets up an SSH key if needed, checks
+your git version, creates the symlinks below, and creates empty `~/.zshrc.local`
+and `~/.claude/CLAUDE.local.md` if they don't exist. It is safe to re-run.
+
+## Adopting on a machine that already has configs
+
+`setup.sh` does **not** assume a brand-new machine. Before linking, any existing
+**real** file it would replace (e.g. a pre-existing `~/.zshrc` or `~/.gitconfig`)
+is moved to `~/.dotfiles-backup-<timestamp>/` first — nothing is overwritten in
+place, and existing correct symlinks are simply repointed.
+
+The backup is **not** auto-merged (symlinking makes the repo's version win). If
+those old files had anything worth keeping, fold it in afterwards:
+
+- shared across machines → into the tracked repo files (then commit + push);
+- specific to this machine → into `~/.zshrc.local` or `~/.claude/CLAUDE.local.md`.
 
 ## Daily use
 

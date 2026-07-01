@@ -72,16 +72,49 @@ else
 fi
 
 echo "==> Creating symlinks..."
-ln -sf  "$DOTFILES/.zshrc"                 "$HOME/.zshrc"
-ln -sf  "$DOTFILES/.zsh_aliases"           "$HOME/.zsh_aliases"
-ln -sf  "$DOTFILES/.gitconfig"             "$HOME/.gitconfig"
-ln -sf  "$DOTFILES/.gitconfig-personal"    "$HOME/.gitconfig-personal"
-ln -sf  "$DOTFILES/.gitconfig-work"        "$HOME/.gitconfig-work"
+# Safe to run on a machine that already has real config files, and safe to
+# re-run: any existing NON-symlink target is moved into $BACKUP_DIR before we
+# link over it, so nothing is destroyed. Existing correct symlinks are just
+# repointed. If you had customisations in the backed-up files, fold what you
+# want to keep into the repo (shared) or into ~/.zshrc.local /
+# ~/.claude/CLAUDE.local.md (machine-specific) afterwards.
+BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
+
+# link SRC DST — make DST a symlink pointing at SRC, without ever destroying data.
+# Handles the three states DST can be in:
+#   1. DST is already a symlink        -> repoint it at SRC (makes re-runs safe)
+#   2. DST is a real file or directory -> move it into $BACKUP_DIR, then link
+#      (this is what protects a machine that already had its own config)
+#   3. DST does not exist              -> just create the link
+link() {
+    local src="$1" dst="$2"
+    if [ -L "$dst" ]; then
+        # Case 1: DST is already a symlink -> just repoint it (idempotent re-run).
+        ln -sfn "$src" "$dst"
+    elif [ -e "$dst" ]; then
+        # Case 2: DST is a real file/dir -> move it to the backup dir before linking,
+        # so a machine's pre-existing config is preserved, never overwritten in place.
+        mkdir -p "$BACKUP_DIR"
+        mv "$dst" "$BACKUP_DIR/"
+        echo "    backed up existing $dst -> $BACKUP_DIR/"
+        ln -sfn "$src" "$dst"
+    else
+        # Case 3: nothing at DST -> create the link.
+        ln -sfn "$src" "$dst"
+    fi
+}
+
 mkdir -p "$HOME/.claude"
-ln -sf  "$DOTFILES/.claude/settings.json"  "$HOME/.claude/settings.json"
-ln -sf  "$DOTFILES/.claude/CLAUDE.md"      "$HOME/.claude/CLAUDE.md"
-ln -sfn "$DOTFILES/.claude/skills"         "$HOME/.claude/skills"
+link "$DOTFILES/.zshrc"                "$HOME/.zshrc"
+link "$DOTFILES/.zsh_aliases"          "$HOME/.zsh_aliases"
+link "$DOTFILES/.gitconfig"            "$HOME/.gitconfig"
+link "$DOTFILES/.gitconfig-personal"   "$HOME/.gitconfig-personal"
+link "$DOTFILES/.gitconfig-work"       "$HOME/.gitconfig-work"
+link "$DOTFILES/.claude/settings.json" "$HOME/.claude/settings.json"
+link "$DOTFILES/.claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
+link "$DOTFILES/.claude/skills"        "$HOME/.claude/skills"
 echo "    Linked: .zshrc, .zsh_aliases, .gitconfig(+personal/work), .claude/{settings.json,CLAUDE.md,skills}"
+[ -d "$BACKUP_DIR" ] && echo "    NOTE: pre-existing files were backed up to $BACKUP_DIR"
 
 echo "==> Bootstrapping machine-local files (not tracked)..."
 [ -f "$HOME/.zshrc.local" ]           || { touch "$HOME/.zshrc.local"; echo "    created ~/.zshrc.local (add machine-specific config here)"; }
