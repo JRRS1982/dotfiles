@@ -55,7 +55,7 @@ get the change.
 - `~/.zshrc.local` — machine-specific shell config, sourced at the end of `.zshrc`.
 - `~/.claude/CLAUDE.local.md` — machine-specific Claude context, imported by `.claude/CLAUDE.md`.
 
-Both are gitignored and created empty by `setup.sh`.
+Both are gitignored and created empty by `setup.sh` — **they are not part of this repo and exist only on the machine you are on**, so you will not find them in this checkout.
 
 ## Git identity
 
