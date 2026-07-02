@@ -89,6 +89,42 @@ get the change.
 | `.claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
 | `.claude/skills/` | `~/.claude/skills/` |
 
+## Claude Code plugins & MCP servers
+
+Two different mechanisms, reproduced two different ways:
+
+- **Plugins** are *declared* in `.claude/settings.json` (`enabledPlugins`, plus any
+  non-official marketplaces under `extraKnownMarketplaces`). The reproduction chain is:
+  `setup.sh` symlinks `settings.json` into `~/.claude/` → the next time you launch
+  Claude Code it reads `enabledPlugins` and **installs each one from its marketplace**.
+  So `setup.sh` has no plugin-specific step — the symlink it already creates is what
+  carries them. Two caveats: Claude Code itself must be installed first (`setup.sh`
+  does not install it), and the first install from a **non-official** marketplace
+  (`thedotmack`, `warpdotdev`) may prompt once to trust it. Currently enabled:
+
+  | Plugin | Source | What it is |
+  |---|---|---|
+  | `superpowers` | official | Skills framework (brainstorming, TDD, systematic-debugging, writing-plans…) |
+  | `claude-mem` | `thedotmack` | Persistent cross-session memory; bundles the `mcp-search` MCP server |
+  | `context7` | official | MCP server for live, version-accurate library docs |
+  | `playwright` | official | MCP server for browser automation |
+  | `security-guidance` | official | Defensive-security guidance |
+  | `explanatory-output-style` | official | The "explanatory" output style |
+  | `warp` | `warpdotdev` | Warp terminal integration |
+
+- **Standalone MCP servers** (added via `claude mcp add`) are *not* declared in
+  `settings.json` — they live in `~/.claude.json`, which is machine-local and **not**
+  symlinked (it also holds per-project history and auth). So they don't travel with
+  the repo on their own. `setup.sh` re-registers them on each machine instead:
+
+  | Server | Registered by | Needs |
+  |---|---|---|
+  | `chrome-devtools` | `setup.sh` (`claude mcp add -s user`) | Node ≥ 22, a local Chrome |
+
+  Note that `context7`, `playwright`, and `claude-mem`'s `mcp-search` are *also* MCP
+  servers, but they ride inside plugins (above), so they're already covered by the
+  symlinked `settings.json`. Only servers with no plugin wrapper need a `setup.sh` line.
+
 ## Machine-local files (never committed)
 
 - `~/.zshrc.local` — machine-specific shell config, sourced at the end of `.zshrc`.

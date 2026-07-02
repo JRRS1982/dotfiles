@@ -116,6 +116,27 @@ link "$DOTFILES/.claude/skills"        "$HOME/.claude/skills"
 echo "    Linked: .zshrc, .zsh_aliases, .gitconfig(+personal/work), .claude/{settings.json,CLAUDE.md,skills}"
 [ -d "$BACKUP_DIR" ] && echo "    NOTE: pre-existing files were backed up to $BACKUP_DIR"
 
+echo "==> Registering standalone MCP servers (user scope)..."
+# Plugins (settings.json -> enabledPlugins) install themselves from their
+# marketplaces the first time Claude Code starts with the symlinked settings.json,
+# so they need nothing here. A plain MCP server added with `claude mcp add` instead
+# lives in ~/.claude.json (machine-local, NOT symlinked), so we (re)register it on
+# each machine here. Guarded with `mcp get` so re-running setup.sh is a no-op.
+if command -v claude &>/dev/null; then
+    if claude mcp get chrome-devtools &>/dev/null; then
+        echo "    chrome-devtools already registered."
+    elif claude mcp add -s user chrome-devtools npx chrome-devtools-mcp@latest; then
+        echo "    Added chrome-devtools (needs Node >= 22 and a local Chrome install)."
+    else
+        # Don't let a transient failure (e.g. no network) abort setup under 'set -e'.
+        echo "    WARNING: could not register chrome-devtools — add it later with:" >&2
+        echo "      claude mcp add -s user chrome-devtools npx chrome-devtools-mcp@latest" >&2
+    fi
+else
+    echo "    Claude Code CLI not found — skipping."
+    echo "    After installing it, run: claude mcp add -s user chrome-devtools npx chrome-devtools-mcp@latest"
+fi
+
 echo "==> Bootstrapping machine-local files (not tracked)..."
 [ -f "$HOME/.zshrc.local" ]           || { touch "$HOME/.zshrc.local"; echo "    created ~/.zshrc.local (add machine-specific config here)"; }
 [ -f "$HOME/.claude/CLAUDE.local.md" ] || { touch "$HOME/.claude/CLAUDE.local.md"; echo "    created ~/.claude/CLAUDE.local.md (add machine-specific Claude context here)"; }
