@@ -38,7 +38,13 @@
       "Bash(head *)",
       "Bash(tail *)",
       "Bash(which *)",
-      "Bash(echo *)"
+      "Bash(echo *)",
+      "Bash(cd *)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "mcp__claude_ai_Atlassian_Rovo__getJiraIssue",
+      "mcp__plugin_claude-mem_mcp-search__get_observations"
     ]
   },
   "model": "claude-opus-4-8[1m]",
