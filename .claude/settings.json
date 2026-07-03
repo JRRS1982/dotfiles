@@ -47,7 +47,6 @@
       "mcp__plugin_claude-mem_mcp-search__get_observations"
     ]
   },
-  "model": "claude-opus-4-8[1m]",
   "enabledPlugins": {
     "superpowers@claude-plugins-official": true,
     "claude-mem@thedotmack": true,
@@ -71,7 +70,17 @@
       }
     }
   },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/scripts/statusline.sh",
+    "padding": 2
+  },
   "tui": "fullscreen",
   "skipWorkflowUsageWarning": true,
+  "theme": "dark",
+  "editorMode": "normal",
+  "preferredNotifChannel": "auto",
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": false,
   "skipAutoPermissionPrompt": true
 }
