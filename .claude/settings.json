@@ -51,11 +51,11 @@
   "enabledPlugins": {
     "superpowers@claude-plugins-official": true,
     "claude-mem@thedotmack": true,
-    "context7@claude-plugins-official": true,
+    "context7@claude-plugins-official": false,
     "playwright@claude-plugins-official": true,
-    "security-guidance@claude-plugins-official": true,
-    "explanatory-output-style@claude-plugins-official": true,
-    "warp@claude-code-warp": true
+    "security-guidance@claude-plugins-official": false,
+    "explanatory-output-style@claude-plugins-official": false,
+    "warp@claude-code-warp": false
   },
   "extraKnownMarketplaces": {
     "thedotmack": {
