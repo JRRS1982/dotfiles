@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Claude Code status line.
 #   Line 1: 📁 project · branch · model
-#   Line 2: context usage (% + tokens, colour-coded) · 5-hour usage reset (clock time)
+#   Line 2: context usage (% + tokens, colour-coded) · 5-hour allowance left (%) · reset (clock time)
 # Reads session JSON from stdin. Field reference:
 #   https://code.claude.com/docs/en/statusline
 set -o pipefail
@@ -36,7 +36,7 @@ printf '%s📁 %s %s %s⎇ %s%s %s %s%s%s\n' \
   "$SEP" "$CYAN" "$branch" "$RESET" \
   "$SEP" "$MAGENTA" "$model" "$RESET"
 
-# --- line 2: context usage · usage reset -----------------------------------
+# --- line 2: context usage · allowance left · usage reset -------------------
 pct=$(jqr '.context_window.used_percentage // 0' | cut -d. -f1)
 used=$(jqr '.context_window.total_input_tokens // 0')
 size=$(jqr '.context_window.context_window_size // 200000')
@@ -47,6 +47,17 @@ else cc=$GREEN
 fi
 ctx=$(printf '%s%s%% (%s/%s)%s' "$cc" "$pct" "$(fmt_k "$used")" "$(fmt_k "$size")" "$RESET")
 
+allowance_seg=""
+used_5h=$(jqr '.rate_limits.five_hour.used_percentage // empty' | cut -d. -f1)
+if [ -n "$used_5h" ]; then
+  left_5h=$((100 - used_5h))
+  if   [ "$left_5h" -le 20 ]; then ac=$RED
+  elif [ "$left_5h" -le 50 ]; then ac=$YELLOW
+  else ac=$GREEN
+  fi
+  allowance_seg=" $SEP ${ac}${left_5h}% left${RESET}"
+fi
+
 resets_at=$(jqr '.rate_limits.five_hour.resets_at // empty')
 if [ -n "$resets_at" ]; then
   reset_time=$(date -d "@$resets_at" +'%-l:%M%P' 2>/dev/null)
@@ -55,4 +66,4 @@ else
   reset_seg=""
 fi
 
-printf '%s%s\n' "$ctx" "$reset_seg"
+printf '%s%s%s\n' "$ctx" "$allowance_seg" "$reset_seg"
