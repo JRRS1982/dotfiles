@@ -85,3 +85,6 @@ Produce responses that are:
 
 <!-- The file below is machine-local and NOT in this repo; the import is skipped if it is absent. -->
 @~/.claude/CLAUDE.local.md
+# graphify
+- **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
+When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
