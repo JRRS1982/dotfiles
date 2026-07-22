@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Claude Code status line.
-#   Line 1: 📁 project · branch · model
+#   Line 1: 📁 project · branch · model · effort (when supported)
 #   Line 2: context usage (% + tokens, colour-coded) · 5-hour allowance left (%) · reset (clock time)
 # Reads session JSON from stdin. Field reference:
 #   https://code.claude.com/docs/en/statusline
@@ -31,10 +31,15 @@ model=$(jqr '.model.display_name // "?"')
 branch=$(git -C "$project_dir" rev-parse --abbrev-ref HEAD 2>/dev/null)
 [ -z "$branch" ] && branch="—"
 
-printf '%s📁 %s %s %s⎇ %s%s %s %s%s%s\n' \
+# effort.level is absent when the model doesn't support the reasoning param
+effort=$(jqr '.effort.level // empty')
+effort_seg=""
+[ -n "$effort" ] && effort_seg=" $SEP ${DIM}effort:${RESET}${effort}"
+
+printf '%s📁 %s %s %s⎇ %s%s %s %s%s%s%s\n' \
   "$DIM" "$BOLD$project$RESET" \
   "$SEP" "$CYAN" "$branch" "$RESET" \
-  "$SEP" "$MAGENTA" "$model" "$RESET"
+  "$SEP" "$MAGENTA" "$model" "$RESET" "$effort_seg"
 
 # --- line 2: context usage · allowance left · usage reset -------------------
 pct=$(jqr '.context_window.used_percentage // 0' | cut -d. -f1)
@@ -45,7 +50,7 @@ if   [ "$pct" -ge 80 ]; then cc=$RED
 elif [ "$pct" -ge 50 ]; then cc=$YELLOW
 else cc=$GREEN
 fi
-ctx=$(printf '%s%s%% (%s/%s)%s' "$cc" "$pct" "$(fmt_k "$used")" "$(fmt_k "$size")" "$RESET")
+ctx=$(printf '%sctx %s%s%s%% (%s/%s)%s' "$DIM" "$RESET" "$cc" "$pct" "$(fmt_k "$used")" "$(fmt_k "$size")" "$RESET")
 
 allowance_seg=""
 used_5h=$(jqr '.rate_limits.five_hour.used_percentage // empty' | cut -d. -f1)
@@ -55,7 +60,7 @@ if [ -n "$used_5h" ]; then
   elif [ "$left_5h" -le 50 ]; then ac=$YELLOW
   else ac=$GREEN
   fi
-  allowance_seg=" $SEP ${ac}${left_5h}% left${RESET}"
+  allowance_seg=" $SEP ${DIM}5h ${RESET}${ac}${left_5h}% left${RESET}"
 fi
 
 resets_at=$(jqr '.rate_limits.five_hour.resets_at // empty')
