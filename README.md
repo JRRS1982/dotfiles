@@ -100,17 +100,24 @@ Two different mechanisms, reproduced two different ways:
   So `setup.sh` has no plugin-specific step — the symlink it already creates is what
   carries them. Two caveats: Claude Code itself must be installed first (`setup.sh`
   does not install it), and the first install from a **non-official** marketplace
-  (`thedotmack`, `warpdotdev`) may prompt once to trust it. Currently enabled:
+  (`thedotmack`, `warpdotdev`, `nextlevelbuilder`) may prompt once to trust it.
+  The `claude-plugins-official` marketplace is built into Claude Code, so it is
+  deliberately **not** listed under `extraKnownMarketplaces` — only the others are.
+  Declared in `enabledPlugins` — note that a declaration is not the same as being on;
+  the ones marked ❌ stay declared so they are one flag-flip away (the MCP-backed ones
+  were switched off in `13d7647` to cut token usage):
 
-  | Plugin | Source | What it is |
-  |---|---|---|
-  | `superpowers` | official | Skills framework (brainstorming, TDD, systematic-debugging, writing-plans…) |
-  | `claude-mem` | `thedotmack` | Persistent cross-session memory; bundles the `mcp-search` MCP server |
-  | `context7` | official | MCP server for live, version-accurate library docs |
-  | `playwright` | official | MCP server for browser automation |
-  | `security-guidance` | official | Defensive-security guidance |
-  | `explanatory-output-style` | official | The "explanatory" output style |
-  | `warp` | `warpdotdev` | Warp terminal integration |
+  | Plugin | Source | On | What it is |
+  |---|---|---|---|
+  | `superpowers` | official | ✅ | Skills framework (brainstorming, TDD, systematic-debugging, writing-plans…) |
+  | `claude-mem` | `thedotmack` | ✅ | Persistent cross-session memory; bundles the `mcp-search` MCP server |
+  | `playwright` | official | ✅ | MCP server for browser automation |
+  | `code-simplifier` | official | ✅ | Simplification/refactor agent |
+  | `ui-ux-pro-max` | `nextlevelbuilder` | ✅ | UI/UX design skills (styles, palettes, design systems, slides) |
+  | `context7` | official | ❌ | MCP server for live, version-accurate library docs |
+  | `security-guidance` | official | ❌ | Defensive-security guidance |
+  | `explanatory-output-style` | official | ❌ | The "explanatory" output style |
+  | `warp` | `warpdotdev` | ❌ | Warp terminal integration |
 
 - **Standalone MCP servers** (added via `claude mcp add`) are *not* declared in
   `settings.json` — they live in `~/.claude.json`, which is machine-local and **not**
@@ -124,6 +131,22 @@ Two different mechanisms, reproduced two different ways:
   Note that `context7`, `playwright`, and `claude-mem`'s `mcp-search` are *also* MCP
   servers, but they ride inside plugins (above), so they're already covered by the
   symlinked `settings.json`. Only servers with no plugin wrapper need a `setup.sh` line.
+
+- **Third-party hooks.** `settings.json` also carries a `hooks` block written by
+  Orca (`~/.orca/agent-hooks/claude-hook.sh`), wired into
+  `UserPromptSubmit`, `Stop`/`StopFailure`, `Subagent{Start,Stop}`, `TeammateIdle`,
+  `Pre`/`PostToolUse`, `PostToolUseFailure` and `PermissionRequest`. It is committed
+  as-is rather than stripped, so the file stays a faithful copy of what Claude Code
+  actually runs. Two things to know: the commands hardcode absolute
+  `/home/jeremyadmin/...` paths (unlike the rest of this repo, which is `~`-relative),
+  and each is guarded by `[ -f ] && [ -r ] && [ -x ]`, so on a machine without Orca
+  they simply no-op. `setup.sh` does **not** install Orca.
+
+  ⚠️ Orca rewrites `~/.claude/settings.json` and has replaced the symlink with a real
+  file before, silently detaching it from this repo. If the two look out of sync,
+  check `ls -l ~/.claude/settings.json`; re-running `setup.sh` restores the link and
+  backs the detached copy up to `~/.dotfiles-backup-*` (fold anything you want to keep
+  back into the repo — the backup is not merged for you).
 
 ## Machine-local files (never committed)
 
