@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Claude Code status line.
 #   Line 1: 📁 project · branch · model · effort (when supported)
-#   Line 2: context usage (% + tokens, colour-coded) · 5-hour allowance left (%) · reset (clock time)
+#   Line 2: context usage (% + tokens, colour-coded) · 5-hour + 7-day allowance left (%) · 5h reset (clock time)
 # Reads session JSON from stdin. Field reference:
 #   https://code.claude.com/docs/en/statusline
 set -o pipefail
@@ -52,16 +52,23 @@ else cc=$GREEN
 fi
 ctx=$(printf '%sctx %s%s%s%% (%s/%s)%s' "$DIM" "$RESET" "$cc" "$pct" "$(fmt_k "$used")" "$(fmt_k "$size")" "$RESET")
 
-allowance_seg=""
-used_5h=$(jqr '.rate_limits.five_hour.used_percentage // empty' | cut -d. -f1)
-if [ -n "$used_5h" ]; then
-  left_5h=$((100 - used_5h))
-  if   [ "$left_5h" -le 20 ]; then ac=$RED
-  elif [ "$left_5h" -le 50 ]; then ac=$YELLOW
-  else ac=$GREEN
+left_colour() { # % left -> colour code
+  if   [ "$1" -le 20 ]; then printf '%s' "$RED"
+  elif [ "$1" -le 50 ]; then printf '%s' "$YELLOW"
+  else printf '%s' "$GREEN"
   fi
-  allowance_seg=" $SEP ${DIM}5h ${RESET}${ac}${left_5h}% left${RESET}"
-fi
+}
+
+allowance_seg() { # label, jq path to used_percentage -> " · label N% left" (empty if absent)
+  local used left
+  used=$(jqr "$2 // empty" | cut -d. -f1)
+  [ -z "$used" ] && return
+  left=$((100 - used))
+  printf ' %s %s%s %s%s%s%% left%s' "$SEP" "$DIM" "$1" "$RESET" "$(left_colour "$left")" "$left" "$RESET"
+}
+
+seg_5h=$(allowance_seg "5h" '.rate_limits.five_hour.used_percentage')
+seg_7d=$(allowance_seg "7d" '.rate_limits.seven_day.used_percentage')
 
 resets_at=$(jqr '.rate_limits.five_hour.resets_at // empty')
 if [ -n "$resets_at" ]; then
@@ -71,4 +78,4 @@ else
   reset_seg=""
 fi
 
-printf '%s%s%s\n' "$ctx" "$allowance_seg" "$reset_seg"
+printf '%s%s%s%s\n' "$ctx" "$seg_5h" "$seg_7d" "$reset_seg"
