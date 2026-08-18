@@ -10,6 +10,15 @@ docs/superpowers/
 # git status) so you can decide per-skill whether to commit or add to this list.
 .claude/skills/mvf-jira-writer/
 
+# Orca-managed skill symlinks — machine-local, point at ~/.agents/skills (Orca app state).
+# Orca recreates these on update; they only work where Orca is installed.
+.claude/skills/orca-cli
+.claude/skills/computer-use
+.claude/skills/orchestration
+
+# Backup files created during settings reconciliation
+.claude/*.bak
+
 # Claude Code runtime state & secrets — never commit if ever nested under the repo
 .claude/.credentials.json
 .claude/history.jsonl
