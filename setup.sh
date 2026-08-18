@@ -114,6 +114,7 @@ link "$DOTFILES/.claude/settings.json" "$HOME/.claude/settings.json"
 link "$DOTFILES/.claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 link "$DOTFILES/.claude/skills"        "$HOME/.claude/skills"
 link "$DOTFILES/.claude/scripts"       "$HOME/.claude/scripts"
+link "$DOTFILES/.claude/output-styles" "$HOME/.claude/output-styles"
 echo "    Linked: .zshrc, .zsh_aliases, .gitconfig(+personal/work), .claude/{settings.json,CLAUDE.md,skills,scripts}"
 [ -d "$BACKUP_DIR" ] && echo "    NOTE: pre-existing files were backed up to $BACKUP_DIR"
 

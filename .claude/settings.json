@@ -200,6 +200,7 @@
       }
     }
   },
+  "outputStyle": "simplified-technical-english",
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": false,
   "skipWorkflowUsageWarning": true,
