@@ -11,10 +11,10 @@
 	rebase = false
 
 [credential "https://github.com"]
-	helper =
+	helper = 
 	helper = !/usr/bin/gh auth git-credential
 [credential "https://gist.github.com"]
-	helper =
+	helper = 
 	helper = !/usr/bin/gh auth git-credential
 
 # Personal — any JRRS1982 remote (https or ssh)
