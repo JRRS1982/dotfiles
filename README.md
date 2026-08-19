@@ -100,7 +100,8 @@ Two different mechanisms, reproduced two different ways:
   So `setup.sh` has no plugin-specific step — the symlink it already creates is what
   carries them. Two caveats: Claude Code itself must be installed first (`setup.sh`
   does not install it), and the first install from a **non-official** marketplace
-  (`thedotmack`, `warpdotdev`, `nextlevelbuilder`) may prompt once to trust it.
+  (`thedotmack`, `warpdotdev`, `nextlevelbuilder`, `claude-for-financial-services`)
+  may prompt once to trust it.
   The `claude-plugins-official` marketplace is built into Claude Code, so it is
   deliberately **not** listed under `extraKnownMarketplaces` — only the others are.
   Declared in `enabledPlugins` — note that a declaration is not the same as being on;
@@ -118,6 +119,29 @@ Two different mechanisms, reproduced two different ways:
   | `security-guidance` | official | ❌ | Defensive-security guidance |
   | `explanatory-output-style` | official | ❌ | The "explanatory" output style |
   | `warp` | `warpdotdev` | ❌ | Warp terminal integration |
+  | `financial-analysis` | `claude-for-financial-services` | ❌ | DCF / LBO / 3-statement / comps models, competitive analysis, xlsx+pptx authoring |
+  | `investment-banking` | `claude-for-financial-services` | ❌ | Client and market insights, deck creation, transaction workflows |
+  | `equity-research` | `claude-for-financial-services` | ❌ | Earnings analysis, initiating-coverage reports |
+  | `pitch-agent` | `claude-for-financial-services` | ❌ | Comps → precedents → LBO → branded pitch deck, end to end |
+  | `market-researcher` | `claude-for-financial-services` | ❌ | Sector/theme → industry overview, peer comps, idea shortlist |
+  | `gl-reconciler` | `claude-for-financial-services` | ❌ | GL break detection, root-cause tracing, sign-off routing |
+
+  The six `claude-for-financial-services` plugins come from
+  [anthropics/financial-services](https://github.com/anthropics/financial-services)
+  (Anthropic's finance vertical: 20 plugins in total, of which these six are declared
+  here). They are deliberately **off** — each one loads a large skill set, so leaving
+  them enabled burns context on every session. Turn one on only for the session that
+  needs it:
+
+  ```bash
+  claude plugin enable financial-analysis@claude-for-financial-services
+  # ...and back off afterwards
+  claude plugin disable financial-analysis@claude-for-financial-services
+  ```
+
+  ⚠️ Run `claude plugin enable/disable` from **outside** this repo, or it resolves
+  `.claude/settings.json` as *project* settings — which here is the very same file as
+  user settings — and edits it in place, showing up as repo drift.
 
 - **Standalone MCP servers** (added via `claude mcp add`) are *not* declared in
   `settings.json` — they live in `~/.claude.json`, which is machine-local and **not**
