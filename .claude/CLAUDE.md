@@ -4,6 +4,24 @@ These apply across all projects on any machine. Machine-specific context lives o
 
 That file is and should **not be part of this repo** and you will not find it here — it exists only on each machine (gitignored; created by `setup.sh`). It is pulled in via the import at the bottom of this file; if it is absent, the import is simply skipped.
 
+## Precedence
+
+Claude Code loads every applicable `CLAUDE.md` into context. It does not resolve conflicts between them. This order does:
+
+1. `~/.claude/CLAUDE.local.md` — machine and account context. Highest.
+2. The project `CLAUDE.md` nearest the working directory.
+3. This file. It states the default; the files above state the exception.
+
+## Scope of this file
+
+- This repo is public. Never add client names, account names, internal URLs, or credentials here. Those belong in `~/.claude/CLAUDE.local.md`.
+- Add a rule here only if it holds in every project and cannot be derived from the repository itself.
+- Stack, commands, and per-repo conventions belong in the project `CLAUDE.md`.
+
+## Repo layout
+
+- `~/.claude/CLAUDE.md`, `settings.json`, `skills/`, and `output-styles/` are symlinks into this dotfiles repo. An edit to `~/.claude/X` edits the repo working tree, so treat those edits as repo changes.
+
 ## Commits
 
 - Prefix commit messages with the branch name, e.g. `GOLD-123: add avatar upload` (the `/dotfiles-gc` skill and the `gc` shell helper both do this automatically).
@@ -12,79 +30,19 @@ That file is and should **not be part of this repo** and you will not find it he
 
 - Skills that ship from this dotfiles repo are prefixed `dotfiles-` (e.g. `dotfiles-gc`) to signal their provenance and distinguish them from plugin-provided skills.
 
-## Core Principles
+## Output styles
 
-- Prioritize correctness over confidence. If unsure, say so and explain what is uncertain.
-- Be concise by default. Use the fewest words that completely answer the question.
-- Optimize for signal over verbosity.
-- Prefer practical answers over theoretical discussions.
-- Avoid repeating information.
-
-## Communication
-
-- Start with the answer, then provide supporting details if needed.
-- Use bullet points instead of long paragraphs where appropriate.
-- Keep explanations proportional to the complexity of the task.
-- Do not add unnecessary introductions or conclusions.
-- Avoid filler, motivational language, or excessive apologies.
-
-## Accuracy
-
-- Never invent facts, APIs, commands, or file names.
-- Distinguish clearly between facts, assumptions, and recommendations.
-- When multiple solutions exist, recommend the simplest one unless constraints suggest otherwise.
-- Preserve existing behavior unless a change is requested.
+- `outputStyle` in `settings.json` selects the active style. Style files live in `~/.claude/output-styles/`.
+- To change the prose register, edit the style file, not this file.
 
 ## Coding
 
-- Write idiomatic, maintainable code.
-- Favor readability over cleverness.
+- Follow the existing style of the repository. This overrides every preference below.
+- Design deep modules: a simple interface that hides substantial implementation. Prefer a few strong abstractions over many shallow wrappers.
+- Reuse before you add. Look for an existing helper, component, or utility first.
+- Prefer pure functions and immutable data structures.
 - Minimize dependencies.
-- Follow the existing style of the repository rather than imposing a new one.
-- Make the smallest change that solves the problem.
-- Avoid premature optimization, but code defensively.
-- Prefer pure functions, immutable data structures, and functional programming patterns where appropriate.
-- Break down complex problems into smaller, manageable steps, and large components into small, testable units.
-- Code should be self-documenting, with clear variable and function names
-
-## Problem Solving
-
-- Understand the request before proposing or attempting a solution.
-- Ask clarifying questions when necessary to avoid making incorrect assumptions.
-- If a reasonable default exists, use it and state the assumption.
-- Consider edge cases, but don't overwhelm the response with unlikely scenarios.
-
-## Terminal & Commands
-
-- Prefer commands that are portable and well-supported.
-- Avoid destructive commands unless explicitly requested.
-- Mention assumptions when commands depend on the operating system or shell.
-
-## Formatting
-
-- Keep responses compact.
-- Use fenced code blocks only for code or terminal commands.
-- Prefer short lists over long prose.
-- Avoid deep nesting.
-
-## When Unsure
-
-- State what is known.
-- State what is uncertain.
-- Suggest the fastest way to verify the uncertainty.
-
-## Goal
-
-Produce responses that are:
-
-1. Correct.
-2. Concise.
-3. Actionable.
-4. Easy to verify.
-5. Easy to maintain.
+- Code defensively, but avoid premature optimization.
 
 <!-- The file below is machine-local and NOT in this repo; the import is skipped if it is absent. -->
 @~/.claude/CLAUDE.local.md
-# graphify
-- **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
-When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
