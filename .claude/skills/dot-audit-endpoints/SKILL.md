@@ -1,6 +1,6 @@
 ---
-name: dotfiles-audit-endpoints
-description: Use when the user asks which endpoints cost money or resources when called, to check rate limiting, abuse protection, LLM/AI cost exposure, email/SMS spam routes, uncapped queries/exports, email enumeration, or server-side usage metering — or types /dotfiles-audit-endpoints. Also invoked by dotfiles-audit.
+name: dot-audit-endpoints
+description: Use when the user asks which endpoints cost money or resources when called, to check rate limiting, abuse protection, LLM/AI cost exposure, email/SMS spam routes, uncapped queries/exports, email enumeration, or server-side usage metering — or types /dot-audit-endpoints. Also invoked by dot-audit.
 ---
 
 # Cost & Abuse Endpoint Audit
@@ -36,7 +36,7 @@ Make the projected damage concrete (approximate calls/hour × unit cost, or mess
 
 ## Orchestrated mode
 
-When invoked by `dotfiles-audit` (or told to return structured findings), output ONLY a JSON array. Put the one-night projection in the `attack` field and the specific limiter in `fix`:
+When invoked by `dot-audit` (or told to return structured findings), output ONLY a JSON array. Put the one-night projection in the `attack` field and the specific limiter in `fix`:
 
 ```json
 [

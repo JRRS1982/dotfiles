@@ -1,6 +1,6 @@
 ---
-name: dotfiles-audit-secrets
-description: Use when the user asks to find exposed secrets, leaked API keys, hardcoded credentials, committed .env files, secrets in git history, or secrets shipped to the browser — or types /dotfiles-audit-secrets. Also invoked by dotfiles-audit.
+name: dot-audit-secrets
+description: Use when the user asks to find exposed secrets, leaked API keys, hardcoded credentials, committed .env files, secrets in git history, or secrets shipped to the browser — or types /dot-audit-secrets. Also invoked by dot-audit.
 ---
 
 # Secrets Audit
@@ -39,7 +39,7 @@ Then a **rotation list**: every key that must be rotated.
 
 ## Orchestrated mode
 
-When invoked by `dotfiles-audit` (or told to return structured findings), output ONLY a JSON array, no narrative and no table:
+When invoked by `dot-audit` (or told to return structured findings), output ONLY a JSON array, no narrative and no table:
 
 ```json
 [

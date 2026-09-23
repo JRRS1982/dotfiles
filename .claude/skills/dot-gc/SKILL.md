@@ -1,6 +1,6 @@
 ---
-name: dotfiles-gc
-description: Create a git commit. Use when the user types /dotfiles-gc, with optional Jira ticket key and/or commit title message.
+name: dot-gc
+description: Create a git commit. Use when the user types /dot-gc, with optional Jira ticket key and/or commit title message.
 argument-hint: "[TICKET-123] [-m 'title']"
 disable-model-invocation: true
 allowed-tools: Bash(git *)
@@ -14,11 +14,11 @@ You are creating a git commit on behalf of the user. They have already reviewed 
 
 The user may pass arguments in any combination of these forms:
 
-- `/dotfiles-gc` — no arguments
-- `/dotfiles-gc GOLD-1924` — Jira ticket key only
-- `/dotfiles-gc -m "My title"` — commit title only
-- `/dotfiles-gc GOLD-1924 -m "My title"` — both
-- `/dotfiles-gc -m "My title" GOLD-1924` — both (order may vary)
+- `/dot-gc` — no arguments
+- `/dot-gc GOLD-1924` — Jira ticket key only
+- `/dot-gc -m "My title"` — commit title only
+- `/dot-gc GOLD-1924 -m "My title"` — both
+- `/dot-gc -m "My title" GOLD-1924` — both (order may vary)
 
 **Extract:**
 1. **TICKET_KEY** — a token matching the pattern `[A-Z]+-[0-9]+` (e.g. `GOLD-1924`). May be absent.

@@ -1,6 +1,6 @@
 ---
-name: dotfiles-audit-auth
-description: Use when the user asks to audit authentication, check auth on routes/endpoints, review session handling, password rules, password reset, or email verification — or types /dotfiles-audit-auth. Also invoked by dotfiles-audit.
+name: dot-audit-auth
+description: Use when the user asks to audit authentication, check auth on routes/endpoints, review session handling, password rules, password reset, or email verification — or types /dot-audit-auth. Also invoked by dot-audit.
 ---
 
 # Auth Audit
@@ -35,7 +35,7 @@ Cover each of the four areas above. For CRITICAL findings, write the concrete ex
 
 ## Orchestrated mode
 
-When invoked by `dotfiles-audit` (or told to return structured findings), output ONLY a JSON array:
+When invoked by `dot-audit` (or told to return structured findings), output ONLY a JSON array:
 
 ```json
 [

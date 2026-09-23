@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+# Report whether a project's graphify graph is missing or out of date, and
+# optionally refresh it. Code extraction is AST-based, so --fix costs CPU only:
+# no LLM, no API key, no tokens.
+#
+#   graphify-stale [path] [--fix] [--quiet]
+#
+# Exit codes:  0 fresh   1 stale   2 no graph   3 not a git repo
+
+set -uo pipefail
+
+target="."
+fix=0
+quiet=0
+
+for arg in "$@"; do
+	case "$arg" in
+		--fix)   fix=1 ;;
+		--quiet) quiet=1 ;;
+		-h|--help)
+			sed -n '2,8p' "$0" | sed 's/^# \?//'
+			exit 0
+			;;
+		-*)
+			echo "graphify-stale: unknown option $arg" >&2
+			exit 3
+			;;
+		*) target="$arg" ;;
+	esac
+done
+
+say() { [ "$quiet" -eq 1 ] || echo "$@"; }
+
+if ! root=$(git -C "$target" rev-parse --show-toplevel 2>/dev/null); then
+	say "graphify-stale: $target is not a git repository"
+	exit 3
+fi
+
+graph="$root/graphify-out/graph.json"
+name=$(basename "$root")
+
+if [ ! -f "$graph" ]; then
+	say "no graph — $name has no graphify-out/graph.json"
+	say "  build it with:  graphify update \"$root\""
+	exit 2
+fi
+
+graph_mtime=$(stat -c %Y "$graph" 2>/dev/null || stat -f %m "$graph")
+
+# Newest tracked source file, and the last commit — whichever is more recent is
+# what the graph has to beat. Tracked files only: build output and node_modules
+# would make every graph look stale forever.
+newest=0
+while IFS= read -r f; do
+	[ -f "$root/$f" ] || continue
+	m=$(stat -c %Y "$root/$f" 2>/dev/null || stat -f %m "$root/$f")
+	[ "$m" -gt "$newest" ] && newest=$m
+done < <(git -C "$root" ls-files)
+
+head_time=$(git -C "$root" log -1 --format=%ct 2>/dev/null || echo 0)
+[ "$head_time" -gt "$newest" ] && newest=$head_time
+
+if [ "$graph_mtime" -ge "$newest" ]; then
+	say "fresh — $name graph is current"
+	exit 0
+fi
+
+changed=$(git -C "$root" ls-files | while IFS= read -r f; do
+	[ -f "$root/$f" ] || continue
+	m=$(stat -c %Y "$root/$f" 2>/dev/null || stat -f %m "$root/$f")
+	[ "$m" -gt "$graph_mtime" ] && echo "$f"
+done | wc -l | tr -d ' ')
+
+age_days=$(( (newest - graph_mtime) / 86400 ))
+say "stale — $name graph is ${age_days}d behind, $changed tracked file(s) newer"
+
+if [ "$fix" -eq 1 ]; then
+	say "refreshing (AST only, no LLM)…"
+	if graphify update "$root"; then
+		say "refreshed — $name"
+		exit 0
+	fi
+	echo "graphify-stale: refresh failed" >&2
+	exit 1
+fi
+
+say "  refresh with:  graphify-stale \"$root\" --fix"
+exit 1

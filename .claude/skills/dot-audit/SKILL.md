@@ -1,6 +1,6 @@
 ---
-name: dotfiles-audit
-description: Use when the user asks for a full security audit, security review, or "audit my app/repo", or types /dotfiles-audit — runs all five sub-audits (secrets, auth, database, input, endpoints) and merges them into one severity-ranked report.
+name: dot-audit
+description: Use when the user asks for a full security audit, security review, or "audit my app/repo", or types /dot-audit — runs all five sub-audits (secrets, auth, database, input, endpoints) and merges them into one severity-ranked report.
 ---
 
 # Security Audit Orchestrator
@@ -11,16 +11,16 @@ The five sub-audits are:
 
 | Sub-skill | Covers |
 |-----------|--------|
-| `dotfiles-audit-secrets` | Exposed secrets, keys in git history, secrets shipped to the browser |
-| `dotfiles-audit-auth` | Session verification, token handling, password & reset flows |
-| `dotfiles-audit-database` | RLS / row-level access rules, cross-user attack queries, storage buckets |
-| `dotfiles-audit-input` | Injection, eval/exec/shell, file uploads, unescaped HTML |
-| `dotfiles-audit-endpoints` | Cost/resource abuse, rate limits, email enumeration, spammable routes |
+| `dot-audit-secrets` | Exposed secrets, keys in git history, secrets shipped to the browser |
+| `dot-audit-auth` | Session verification, token handling, password & reset flows |
+| `dot-audit-database` | RLS / row-level access rules, cross-user attack queries, storage buckets |
+| `dot-audit-input` | Injection, eval/exec/shell, file uploads, unescaped HTML |
+| `dot-audit-endpoints` | Cost/resource abuse, rate limits, email enumeration, spammable routes |
 
 ## Scope
 
 - No arguments → run **all five** sub-audits.
-- Arguments naming categories (e.g. `secrets auth`, or `/dotfiles-audit database input`) → run only those. Accept the short name (`secrets`) or the full skill name (`dotfiles-audit-secrets`).
+- Arguments naming categories (e.g. `secrets auth`, or `/dot-audit database input`) → run only those. Accept the short name (`secrets`) or the full skill name (`dot-audit-secrets`).
 
 ## How to run
 
@@ -28,9 +28,9 @@ The five sub-audits are:
 
 2. **Dispatch the sub-audits in parallel.** For each in-scope category, launch one subagent (Agent tool, `general-purpose`) in a single message so they run concurrently. Give each subagent this instruction:
 
-   > You are running the `<dotfiles-audit-CATEGORY>` security audit against the repository at `<ABSOLUTE_REPO_PATH>`. Invoke that skill with the Skill tool and follow it in **orchestrated mode**: return ONLY the structured findings block (the JSON array described in the skill's "Orchestrated mode" section) and nothing else. Do not print the narrative table.
+   > You are running the `<dot-audit-CATEGORY>` security audit against the repository at `<ABSOLUTE_REPO_PATH>`. Invoke that skill with the Skill tool and follow it in **orchestrated mode**: return ONLY the structured findings block (the JSON array described in the skill's "Orchestrated mode" section) and nothing else. Do not print the narrative table.
 
-   If a subagent cannot load the named skill, tell it to read the skill file directly and follow it. The skills are symlinked into the runtime skills directory; resolve the path with `readlink -f ~/.claude/skills/dotfiles-audit-CATEGORY/SKILL.md` if needed.
+   If a subagent cannot load the named skill, tell it to read the skill file directly and follow it. The skills are symlinked into the runtime skills directory; resolve the path with `readlink -f ~/.claude/skills/dot-audit-CATEGORY/SKILL.md` if needed.
 
 3. **Collect** each subagent's findings array. A subagent that finds nothing returns `[]`.
 

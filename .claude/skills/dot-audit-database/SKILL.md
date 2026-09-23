@@ -1,6 +1,6 @@
 ---
-name: dotfiles-audit-database
-description: Use when the user asks to audit database access rules, row-level security (RLS), Supabase policies, table permissions, or storage bucket access — or types /dotfiles-audit-database. Also invoked by dotfiles-audit.
+name: dot-audit-database
+description: Use when the user asks to audit database access rules, row-level security (RLS), Supabase policies, table permissions, or storage bucket access — or types /dot-audit-database. Also invoked by dot-audit.
 ---
 
 # Database Access Audit
@@ -36,7 +36,7 @@ For every CRITICAL/HIGH, give the corrected policy as runnable SQL, not a descri
 
 ## Orchestrated mode
 
-When invoked by `dotfiles-audit` (or told to return structured findings), output ONLY a JSON array. Put the corrected SQL in the `fix` field:
+When invoked by `dot-audit` (or told to return structured findings), output ONLY a JSON array. Put the corrected SQL in the `fix` field:
 
 ```json
 [

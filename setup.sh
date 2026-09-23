@@ -105,6 +105,13 @@ link() {
 }
 
 mkdir -p "$HOME/.claude"
+# ~/bin is linked file by file, not as a whole directory: it is already first on
+# PATH (.zshrc) and may hold a machine's own scripts, which linking the
+# directory over it would sweep into the backup dir.
+mkdir -p "$HOME/bin"
+link "$DOTFILES/bin/gh"                    "$HOME/bin/gh"
+link "$DOTFILES/bin/gh-account-for-remote" "$HOME/bin/gh-account-for-remote"
+link "$DOTFILES/bin/graphify-stale"        "$HOME/bin/graphify-stale"
 link "$DOTFILES/.zshrc"                "$HOME/.zshrc"
 link "$DOTFILES/.zsh_aliases"          "$HOME/.zsh_aliases"
 link "$DOTFILES/.gitconfig"            "$HOME/.gitconfig"
@@ -115,7 +122,7 @@ link "$DOTFILES/.claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 link "$DOTFILES/.claude/skills"        "$HOME/.claude/skills"
 link "$DOTFILES/.claude/scripts"       "$HOME/.claude/scripts"
 link "$DOTFILES/.claude/output-styles" "$HOME/.claude/output-styles"
-echo "    Linked: .zshrc, .zsh_aliases, .gitconfig(+personal/work), .claude/{settings.json,CLAUDE.md,skills,scripts}"
+echo "    Linked: .zshrc, .zsh_aliases, .gitconfig(+personal/work), .claude/{settings.json,CLAUDE.md,skills,scripts}, bin/{gh,gh-account-for-remote,graphify-stale}"
 [ -d "$BACKUP_DIR" ] && echo "    NOTE: pre-existing files were backed up to $BACKUP_DIR"
 
 echo "==> Registering standalone MCP servers (user scope)..."

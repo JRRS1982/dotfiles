@@ -1,6 +1,6 @@
 ---
-name: dotfiles-audit-input
-description: Use when the user asks to trace user input to dangerous sinks, find injection (SQL/NoSQL/command), eval/exec/shell usage, unsafe file uploads, XSS / dangerouslySetInnerHTML, or missing server-side validation — or types /dotfiles-audit-input. Also invoked by dotfiles-audit.
+name: dot-audit-input
+description: Use when the user asks to trace user input to dangerous sinks, find injection (SQL/NoSQL/command), eval/exec/shell usage, unsafe file uploads, XSS / dangerouslySetInnerHTML, or missing server-side validation — or types /dot-audit-input. Also invoked by dot-audit.
 ---
 
 # Input-to-Sink Audit
@@ -36,7 +36,7 @@ The payload must be concrete (the actual string/JSON that triggers it), not a de
 
 ## Orchestrated mode
 
-When invoked by `dotfiles-audit` (or told to return structured findings), output ONLY a JSON array. Put the example payload in the `attack` field:
+When invoked by `dot-audit` (or told to return structured findings), output ONLY a JSON array. Put the example payload in the `attack` field:
 
 ```json
 [

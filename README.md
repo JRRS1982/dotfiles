@@ -73,7 +73,7 @@ git push
 
 The `dotfiles` shell alias runs `git` against this repo from anywhere (`dotfiles
 status`, `dotfiles add ...`, etc.), so you don't need to `cd` first. For commits,
-prefer the `/dotfiles-gc` skill. On another machine, `git pull` in this repo to
+prefer the `/dot-gc` skill. On another machine, `git pull` in this repo to
 get the change.
 
 ## What's symlinked
@@ -88,6 +88,14 @@ get the change.
 | `.claude/settings.json` | `~/.claude/settings.json` |
 | `.claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
 | `.claude/skills/` | `~/.claude/skills/` |
+| `.claude/scripts/` | `~/.claude/scripts/` |
+| `.claude/output-styles/` | `~/.claude/output-styles/` |
+| `bin/gh` | `~/bin/gh` |
+| `bin/gh-account-for-remote` | `~/bin/gh-account-for-remote` |
+| `bin/graphify-stale` | `~/bin/graphify-stale` |
+
+`bin/` is linked file by file rather than as a directory, so a machine's own
+scripts in `~/bin` survive.
 
 ## Claude Code plugins & MCP servers
 
@@ -188,10 +196,43 @@ repo by remote URL via `hasconfig` (git ≥ 2.36):
 - Remote matches `bitbucket.org:mvfglobal/**` → work identity (`.gitconfig-work`)
 - Anything else → git refuses to commit until you set `user.name`/`user.email` yourself
 
+## Skills in this repo
+
+Named `dot-*` so their provenance is obvious next to plugin-provided skills.
+Ones marked "typed" only ever run when you type `/<name>` — they never
+auto-trigger.
+
+| Skill | Does |
+|---|---|
+| `dot-gc` | Commit with the branch name as prefix (`GOLD-123: …`) — typed |
+| `dot-code-review` | Branch diff → paste-ready PR comment, incl. Jira AC coverage — typed |
+| `dot-deslop` | Strip AI-introduced slop from the branch diff; also lints a `SKILL.md` — typed |
+| `dot-council` | Panel of models answer, rank each other blind, chairman synthesises — typed |
+| `dot-audit` | Runs the five sub-audits below in parallel, merged severity-ranked report |
+| `dot-audit-secrets` | Exposed keys, secrets in git history, secrets shipped to the browser |
+| `dot-audit-auth` | Session verification, token handling, password & reset flows |
+| `dot-audit-database` | RLS / row-level access, cross-user queries, storage buckets |
+| `dot-audit-input` | Injection, `eval`/`exec`, uploads, unescaped HTML |
+| `dot-audit-endpoints` | Cost & resource abuse, rate limits, email enumeration |
+
+`dot-audit` and `dot-code-review` are complements, not alternatives: the audit
+sweeps the whole repo for security issues, the review reads only this branch's
+diff for bugs and `CLAUDE.md` compliance.
+
+## Keeping a graphify graph fresh
+
+graphify itself is installed once per machine (`uv tool install graphifyy`); the
+skill auto-installs it on first use. What is per-project is `graphify-out/`.
+
+`graphify-stale [path]` reports whether that project's graph is missing, stale
+or current, and `--fix` refreshes it. Refreshing a code repo is AST-only — no
+LLM, no API key, no tokens. Exit codes: `0` fresh, `1` stale, `2` no graph,
+`3` not a git repo.
+
 ## Adding a skill
 
 Drop it in `~/.claude/skills/<name>/` (i.e. `.claude/skills/<name>/` in this
 repo, since it's symlinked). It shows up as untracked in `git status`:
 
-- Shareable → commit it, prefixing the name with `dotfiles-` (e.g. `dotfiles-gc`)
+- Shareable → commit it, prefixing the name with `dot-` (e.g. `dot-gc`)
 - Private/work-specific → add its path to `.gitignore` instead (e.g. `mvf-jira-writer`)

@@ -1,6 +1,6 @@
 ---
-name: dotfiles-code-review
-description: Review the current branch's local diff (against its base) and produce a concise, paste-ready PR review comment. Use when the user types /dotfiles-code-review. Platform-agnostic (works for GitHub and Bitbucket checkouts) — it reads local git, never a hosting API, so the output is copy-pasted into the PR by hand. Optionally checks the diff against a linked Jira ticket's acceptance criteria.
+name: dot-code-review
+description: Review the current branch's local diff (against its base) and produce a concise, paste-ready PR review comment. Use when the user types /dot-code-review. Platform-agnostic (works for GitHub and Bitbucket checkouts) — it reads local git, never a hosting API, so the output is copy-pasted into the PR by hand. Optionally checks the diff against a linked Jira ticket's acceptance criteria.
 argument-hint: "[base-branch] [JIRA-KEY]"
 disable-model-invocation: true
 allowed-tools: Bash(git *), mcp__claude_ai_Atlassian_Rovo__getJiraIssue
