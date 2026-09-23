@@ -1,0 +1,26 @@
+#!/bin/sh
+# WHAT: print the GitHub account that owns a repo's remote, or exit 1.
+# WHY:  this mapping is the one fact that both halves of the routing need - the
+#       gh shim next to this file, and ghsync in .zsh_aliases. It lives in a
+#       script rather than a shell function because cron, `sh -c` and agent
+#       shells never source .zsh_aliases, and those are exactly the places a
+#       wrong account goes unnoticed. Keep it in step with the credential
+#       sections in ~/.gitconfig, which encode the same rules for git itself.
+# HOW:  gh-account-for-remote [remote]   # remote defaults to origin
+set -u
+
+url=$(git config --get "remote.${1:-origin}.url" 2>/dev/null) || exit 1
+
+# Anchored at the start of the URL rather than matched anywhere in it, so a
+# remote like https://elsewhere.example/github.com/JRRS1982/x cannot claim an
+# account it does not own. An unrecognised remote exits 1 so that callers leave
+# whatever is active alone - a fork, a client org or a repo with no remote is
+# better left untouched than guessed at.
+case "$url" in
+	https://github.com/JRRS1982/*|git@github.com:JRRS1982/*|ssh://git@github.com/JRRS1982/*)
+		echo JRRS1982 ;;
+	https://github.com/mvfglobal/*|git@github.com:mvfglobal/*|ssh://git@github.com/mvfglobal/*)
+		echo JRRSMVF ;;
+	*)
+		exit 1 ;;
+esac

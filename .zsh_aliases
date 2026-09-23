@@ -39,39 +39,26 @@ alias dotfiles="git -C $HOME/PersonalProjects/dotfiles"
 
 # JS: gh account auto-switch
 # WHAT: keeps gh's ACTIVE account matching the repo you are standing in.
-# WHY: ~/.gitconfig already picks the right commit identity per remote
-#      (includeIf hasconfig:remote.*.url), but that only sets user.name and
-#      user.email. Which GitHub account actually authenticates is gh's active
-#      account — and because the credential helper is `gh auth git-credential`,
-#      a bare `git push` uses it too. A mismatch shows up as
-#      "remote: Repository not found" on a repo you own, which is confusing
-#      because the error names the repo rather than the account.
+# WHY: this is now belt and braces, not the mechanism. What actually
+#      authenticates is routed by remote URL and cannot drift: ~/.gitconfig
+#      picks git's credentials per org, and bin/gh sets GH_TOKEN per gh
+#      invocation. Keeping the active account in step on top of that means
+#      `gh auth status` tells the truth, and anything calling /usr/bin/gh
+#      directly — past the shim — still lands on the right account.
 # HOW: automatic on cd, and again before any gh command.
 #      `ghwho` to see where you stand, `ghsync -v` to see what it decided.
 
-# Map a remote to the account that owns it. Mirrors the rules in ~/.gitconfig —
-# keep the two in step. Returns 1 for an unrecognised remote so that anything
-# else (a fork, a client org, no remote at all) is left alone rather than
-# guessed at.
-_gh_account_for_repo() {
-  local url
-  url=$(git config --get remote.origin.url 2>/dev/null) || return 1
-  # Anchored at the start of the URL rather than matched anywhere in it, so a
-  # remote like https://elsewhere.example/github.com/JRRS1982/x cannot claim an
-  # account it does not own.
-  case "$url" in
-    https://github.com/JRRS1982/*|git@github.com:JRRS1982/*|ssh://git@github.com/JRRS1982/*)
-      print JRRS1982 ;;
-    https://github.com/mvfglobal/*|git@github.com:mvfglobal/*|ssh://git@github.com/mvfglobal/*)
-      print JRRSMVF ;;
-    *) return 1 ;;
-  esac
-}
+# The remote -> account mapping now lives in bin/gh-account-for-remote, because
+# the gh shim needs the same rules and a shell function is invisible to it. Note
+# the names below avoid a leading underscore on purpose: Claude Code snapshots
+# the shell's functions per session and drops `_`-prefixed ones, which silently
+# broke ghsync in every agent shell ("command not found: _gh_account_for_repo").
+ghAccountForRepo() { gh-account-for-remote "$@" }
 
 # The active account, read straight from gh's config file. `gh auth status`
 # would also say, but it makes a network call — far too slow to hang off every
 # cd. The pattern matches `user:` and not `users:`, which sit at the same indent.
-_gh_active_account() {
+ghActiveAccount() {
   grep -E "^[[:space:]]*user:" "${GH_CONFIG_DIR:-$HOME/.config/gh}/hosts.yml" 2>/dev/null \
     | awk '{print $2}' | head -1
 }
@@ -80,11 +67,11 @@ _gh_active_account() {
 # it unconditionally would mean a disk write on every directory change.
 ghsync() {
   local want have
-  if ! want=$(_gh_account_for_repo); then
-    [[ "$1" == "-v" ]] && print "gh: no rule for this remote, leaving $(_gh_active_account) active"
+  if ! want=$(ghAccountForRepo); then
+    [[ "$1" == "-v" ]] && print "gh: no rule for this remote, leaving $(ghActiveAccount) active"
     return 0
   fi
-  have=$(_gh_active_account)
+  have=$(ghActiveAccount)
   if [[ "$want" != "$have" ]]; then
     if command gh auth switch --user "$want" >/dev/null 2>&1; then
       print "gh: switched to $want"
@@ -111,12 +98,12 @@ gh() {
 unalias ghwho 2>/dev/null
 ghwho() {
   local want
-  if want=$(_gh_account_for_repo); then
+  if want=$(ghAccountForRepo); then
     print "repo wants:  $want"
   else
     print "repo wants:  (no rule for this remote)"
   fi
-  print "gh active:   $(_gh_active_account)"
+  print "gh active:   $(ghActiveAccount)"
   print "git author:  $(git config user.name 2>/dev/null) <$(git config user.email 2>/dev/null)>"
 }
 

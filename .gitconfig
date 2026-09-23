@@ -10,9 +10,33 @@
 [pull]
 	rebase = false
 
+# Credentials are selected by REMOTE URL too, not by whichever gh account
+# happens to be active. `gh auth git-credential` always hands back the ACTIVE
+# account's token, so a bare `git push` in a work repo while the personal
+# account is active fails as "remote: Repository not found" - naming the repo
+# rather than the account, which sends you looking in the wrong place. ghsync
+# in .zsh_aliases keeps the active account right for the `gh` CLI itself, but
+# it is a zsh function: cron, scripts and agent shells do not have it.
+#
+# useHttpPath is what lets the org-scoped sections below match at all - without
+# it git only matches credential config on protocol and host, so the path is
+# never even looked at. The empty `helper =` in each org section resets the
+# inherited host-level helper rather than adding to it, so exactly one runs.
+# Any other github.com org falls through to the host section and the active
+# account, which is the right default for a fork or a client org.
+#
+# Check what a URL resolves to with:
+#   git config --get-urlmatch credential https://github.com/mvfglobal/x.git
 [credential "https://github.com"]
+	useHttpPath = true
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
+[credential "https://github.com/mvfglobal"]
+	helper =
+	helper = "!f() { test \"$1\" = get && printf 'username=JRRSMVF\\npassword=%s\\n' \"$(/usr/bin/gh auth token --user JRRSMVF)\"; }; f"
+[credential "https://github.com/JRRS1982"]
+	helper =
+	helper = "!f() { test \"$1\" = get && printf 'username=JRRS1982\\npassword=%s\\n' \"$(/usr/bin/gh auth token --user JRRS1982)\"; }; f"
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential

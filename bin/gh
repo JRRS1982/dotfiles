@@ -1,0 +1,44 @@
+#!/bin/sh
+# WHAT: gh, with the account chosen by the repo's remote rather than by
+#       whichever account happens to be active.
+# WHY:  ~/.gitconfig already routes git's credentials by remote URL, but every
+#       gh command still uses the ACTIVE account: `gh pr create` in a work repo
+#       while the personal account is active fails as "Repository not found",
+#       or worse succeeds as the wrong user. A zsh function cannot close this -
+#       cron, `sh -c` and agent shells never source .zsh_aliases - so this is a
+#       real executable, found because ~/bin precedes /usr/bin on PATH.
+# HOW:  call gh normally. GH_TOKEN is set for this ONE invocation, so unlike
+#       `gh auth switch` nothing is written to hosts.yml and two shells in two
+#       repos cannot fight over it.
+set -u
+
+REAL_GH=${GH_BIN:-/usr/bin/gh}
+
+if [ ! -x "$REAL_GH" ]; then
+	echo "gh shim: no gh at $REAL_GH - set GH_BIN to its path on this machine" >&2
+	exit 127
+fi
+
+# `gh auth ...` is exempt: handing a token to someone who is explicitly managing
+# accounts would hide what they are doing, and ghsync calls `gh auth switch`.
+# An inherited GH_TOKEN/GITHUB_TOKEN also wins, so CI and deliberate one-off
+# overrides still behave as they read.
+if [ "${1:-}" = "auth" ] || [ -n "${GH_TOKEN:-}${GITHUB_TOKEN:-}" ]; then
+	exec "$REAL_GH" "$@"
+fi
+
+# Sibling first so the pair travels together, PATH second in case only one of
+# them is linked on this machine.
+resolver="$(dirname "$0")/gh-account-for-remote"
+[ -x "$resolver" ] || resolver=gh-account-for-remote
+
+# Every failure here falls through to plain gh: an unrecognised remote, no repo
+# at all, or an account that is not logged in should behave exactly as gh does
+# today rather than becoming an error of its own.
+want=$("$resolver" 2>/dev/null) || exec "$REAL_GH" "$@"
+token=$("$REAL_GH" auth token --user "$want" 2>/dev/null) || exec "$REAL_GH" "$@"
+[ -n "$token" ] || exec "$REAL_GH" "$@"
+
+GH_TOKEN=$token
+export GH_TOKEN
+exec "$REAL_GH" "$@"
