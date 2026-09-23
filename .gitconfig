@@ -10,6 +10,20 @@
 [pull]
 	rebase = false
 
+# Drop remote-tracking refs whose branch is gone from the server, on every
+# fetch. Without it `origin/*` only ever grows: 103 dead refs had piled up
+# across 25 repos by 2026-09-23, and `git branch -vv | grep ': gone]'` - the
+# usual way to find merged branches - only tells the truth once this is on.
+#
+# The cost: a remote-tracking ref is the last local pointer to a branch
+# someone deletes server-side. Pruning removes the ref AND its reflog, so an
+# UNMERGED branch deleted on the remote becomes unrecoverable here once gc
+# runs. Merged branches are unaffected - their commits stay reachable from
+# master. Deliberately NOT setting fetch.pruneTags, which would delete local
+# tags that are absent from the remote.
+[fetch]
+	prune = true
+
 # Credentials are selected by REMOTE URL too, not by whichever gh account
 # happens to be active. `gh auth git-credential` always hands back the ACTIVE
 # account's token, so a bare `git push` in a work repo while the personal
