@@ -51,5 +51,20 @@ Claude Code loads every applicable `CLAUDE.md` into context. It does not resolve
 - Minimize dependencies.
 - Code defensively, but avoid premature optimization.
 
+## Testing
+
+Before writing any test, state the failure scenario: "if this is wrong, a user can X." That determines the layer. If the failure scenario can't be stated in one sentence, ask before writing.
+
+- **Unit** — pure functions with user-visible outputs. Input → output, no I/O. Write exhaustively for complex logic.
+- **Integration** — code that crosses a real boundary (DB, external service). Real dependency, mocked auth. Highest-value layer for server-action apps.
+- **E2E** — critical user journeys and async server components. Keep thin.
+
+Three questions before writing any test:
+1. What user-visible harm results if this is wrong?
+2. At what layer is this most cheaply caught?
+3. Would this test survive a refactor of the internals? If not, it tests an implementation detail — don't write it.
+
+See `~/.claude/rules/testing.md` for naming and mocking conventions (loads when working on test files).
+
 <!-- The file below is machine-local and NOT in this repo; the import is skipped if it is absent. -->
 @~/.claude/CLAUDE.local.md
