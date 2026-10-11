@@ -10,6 +10,9 @@ docs/superpowers/
 # git status) so you can decide per-skill whether to commit or add to this list.
 .claude/skills/mvf-jira-writer/
 
+# Claude Code moves replaced or uninstalled skills here on update. Runtime litter, never ours.
+.claude/skills/.trash/
+
 # Claude-managed synced skills — pulled down and refreshed by Claude Code itself,
 # not authored here. 4 MB of vendored upstream skills; let the tool own them.
 .claude/skills/synced/

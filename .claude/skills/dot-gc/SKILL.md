@@ -55,9 +55,7 @@ Work through the following priority order and stop as soon as you have a key:
 **d) Context and plan** — if none of the above, infer from the staged diff and any prior conversation context (e.g. a plan mentioning a ticket). Surface your reasoning and **ask the user to confirm**:
 > "Based on the changes, I think this relates to `GOLD-5678`. Should I use that, or specify a different key? (Reply with the key or press Enter to skip)"
 
-**e) No ticket determined** — if nothing can be inferred, prompt the user to optionally specify one.
-
-**f) No ticket** — if nothing can be inferred and the user declines to provide one, proceed without one.
+**e) No ticket** — if nothing can be inferred, ask the user once whether to supply a key. If they decline, proceed without one.
 
 ---
 
@@ -80,7 +78,7 @@ Assemble the message in this exact structure:
 - Additional context about approach or tradeoffs
 - Any important notes (e.g. breaking changes, migration steps)
 
-Co-Authored-By: ${CLAUDE_MODEL} <noreply@anthropic.com>
+Co-Authored-By: <model name> <noreply@anthropic.com>
 ```
 
 **Rules:**
@@ -89,7 +87,7 @@ Co-Authored-By: ${CLAUDE_MODEL} <noreply@anthropic.com>
 - Leave a blank line between the title and the body.
 - The body should be what you would normally write autonomously in a commit: concise bullets covering *what* changed, *why*, and any notable detail. Aim for 3–7 bullets unless the change is trivial.
 - Do not pad or repeat the title in the body.
-- Always include a `Co-Authored-By` trailer as the final line, separated from the body by a blank line, using the current model from the `$CLAUDE_MODEL` environment variable. Format: `Co-Authored-By: $CLAUDE_MODEL <noreply@anthropic.com>`
+- Always end with a `Co-Authored-By` trailer on the final line, separated from the body by a blank line. Use the attribution line the session provides for commits; if it provides none, write the name of the model composing the commit.
 
 **Show the proposed commit message to the user before committing:**
 
@@ -104,7 +102,7 @@ Proposed commit message:
 - Update UserProfile to display avatar with fallback initials
 - Add unit tests for validation logic
 
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+Co-Authored-By: <model name> <noreply@anthropic.com>
 ─────────────────────────────
 Proceed with commit? [Y/n]
 ```

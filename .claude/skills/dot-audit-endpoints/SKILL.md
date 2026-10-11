@@ -36,19 +36,4 @@ Make the projected damage concrete (approximate calls/hour × unit cost, or mess
 
 ## Orchestrated mode
 
-When invoked by `dot-audit` (or told to return structured findings), output ONLY a JSON array. Put the one-night projection in the `attack` field and the specific limiter in `fix`:
-
-```json
-[
-  {
-    "category": "endpoints",
-    "location": "POST /api/generate",
-    "issue": "Triggers an LLM call with no auth and no rate limit",
-    "attack": "Script hits it ~100k times overnight; at ~$0.01/call that is ~$1,000 in one night",
-    "severity": "CRITICAL",
-    "fix": "Require auth; add a per-user and per-IP rate limit (e.g. 20/min) and a daily quota; fail closed"
-  }
-]
-```
-
-Return `[]` if nothing is found.
+When invoked by `dot-audit` (or told to return structured findings), output ONLY the JSON findings array defined in `~/.claude/skills/dot-audit/findings-schema.md`. Read that file first. Set `category` to `endpoints`. Put the one-night cost projection in the `attack` field and the specific limiter in `fix`. Return `[]` if nothing is found.

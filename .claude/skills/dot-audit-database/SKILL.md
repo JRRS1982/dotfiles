@@ -36,19 +36,4 @@ For every CRITICAL/HIGH, give the corrected policy as runnable SQL, not a descri
 
 ## Orchestrated mode
 
-When invoked by `dot-audit` (or told to return structured findings), output ONLY a JSON array. Put the corrected SQL in the `fix` field:
-
-```json
-[
-  {
-    "category": "database",
-    "location": "table:public.profiles",
-    "issue": "RLS disabled; readable with anon key",
-    "attack": "select * from profiles; returns every user's row via the public client",
-    "severity": "CRITICAL",
-    "fix": "alter table profiles enable row level security; create policy own_rows on profiles for select using (auth.uid() = user_id);"
-  }
-]
-```
-
-Return `[]` if nothing is found.
+When invoked by `dot-audit` (or told to return structured findings), output ONLY the JSON findings array defined in `~/.claude/skills/dot-audit/findings-schema.md`. Read that file first. Set `category` to `database`. Put the corrected SQL in the `fix` field. Return `[]` if nothing is found.

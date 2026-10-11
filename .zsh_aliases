@@ -16,20 +16,26 @@ gp() {
 }
 
 # JS: gc helper
-# WHAT: commit all staged changes, prefixing the message with the branch name.
-# WHY: makes life easier
-# HOW: i.e. "gc add new button" on branch GOLD-123 -> "GOLD-123: add new button"
+# WHAT: commit all staged changes, prefixing the title with the branch's Jira key.
+# WHY: matches the /dot-gc skill and the commit rule in ~/.claude/CLAUDE.md.
+# HOW: "gc add new button" on branch feature/GOLD-123-x -> "[GOLD-123] add new button"
+#      on a branch with no key (e.g. master) the title has no prefix.
+# NOTE: no leading underscore on the helper name; Claude Code drops `_`-prefixed
+#       functions from its shell snapshot (see the gh notes below).
+gitTicketPrefix() {
+  local key
+  key=$(git rev-parse --abbrev-ref HEAD 2>/dev/null | grep -oE '[A-Z]+-[0-9]+' | head -1)
+  [[ -n "$key" ]] && print -n "[$key] "
+}
 unalias gc 2>/dev/null
 gc() {
-  branch=$(git rev-parse --abbrev-ref HEAD)
-  git commit -m "$branch: $*"
+  git commit -m "$(gitTicketPrefix)$*"
 }
 
 # JS: gcn helper — like gc but skips pre-commit hooks
 unalias gcn 2>/dev/null
 gcn() {
-  branch=$(git rev-parse --abbrev-ref HEAD)
-  git commit -n -m "$branch: $*"
+  git commit -n -m "$(gitTicketPrefix)$*"
 }
 
 # WHAT: alias to manage the dotfiles repo from anywhere

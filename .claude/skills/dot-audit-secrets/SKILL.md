@@ -39,19 +39,4 @@ Then a **rotation list**: every key that must be rotated.
 
 ## Orchestrated mode
 
-When invoked by `dot-audit` (or told to return structured findings), output ONLY a JSON array, no narrative and no table:
-
-```json
-[
-  {
-    "category": "secrets",
-    "location": "config/prod.ts:12",
-    "issue": "Stripe live secret key hardcoded",
-    "attack": "Anyone with repo read access, or the key in bundled JS, can charge/refund",
-    "severity": "CRITICAL",
-    "fix": "Move to server-side env var; rotate the key — it is in git history"
-  }
-]
-```
-
-Include a rotation note inside the relevant finding's `fix` field. Return `[]` if nothing is found.
+When invoked by `dot-audit` (or told to return structured findings), output ONLY the JSON findings array defined in `~/.claude/skills/dot-audit/findings-schema.md`. Read that file first. Set `category` to `secrets`. Any key that ever touched a commit gets a rotation note in `fix`. Return `[]` if nothing is found.

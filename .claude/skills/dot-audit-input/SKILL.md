@@ -36,19 +36,4 @@ The payload must be concrete (the actual string/JSON that triggers it), not a de
 
 ## Orchestrated mode
 
-When invoked by `dot-audit` (or told to return structured findings), output ONLY a JSON array. Put the example payload in the `attack` field:
-
-```json
-[
-  {
-    "category": "input",
-    "location": "src/search.ts:88",
-    "issue": "SQL built by string concatenation of req.query.q",
-    "attack": "?q=' OR '1'='1  — returns all rows; ?q='; drop table users;--",
-    "severity": "CRITICAL",
-    "fix": "Use a parameterised query / prepared statement; never concatenate user input into SQL"
-  }
-]
-```
-
-Return `[]` if nothing is found.
+When invoked by `dot-audit` (or told to return structured findings), output ONLY the JSON findings array defined in `~/.claude/skills/dot-audit/findings-schema.md`. Read that file first. Set `category` to `input`. Put the example payload in the `attack` field. Return `[]` if nothing is found.

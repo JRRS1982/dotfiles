@@ -28,7 +28,7 @@ The five sub-audits are:
 
 2. **Dispatch the sub-audits in parallel.** For each in-scope category, launch one subagent (Agent tool, `general-purpose`) in a single message so they run concurrently. Give each subagent this instruction:
 
-   > You are running the `<dot-audit-CATEGORY>` security audit against the repository at `<ABSOLUTE_REPO_PATH>`. Invoke that skill with the Skill tool and follow it in **orchestrated mode**: return ONLY the structured findings block (the JSON array described in the skill's "Orchestrated mode" section) and nothing else. Do not print the narrative table.
+   > You are running the `<dot-audit-CATEGORY>` security audit against the repository at `<ABSOLUTE_REPO_PATH>`. Invoke that skill with the Skill tool and follow it in **orchestrated mode**: return ONLY the structured findings block (the JSON array defined in `~/.claude/skills/dot-audit/findings-schema.md`) and nothing else. Do not print the narrative table.
 
    If a subagent cannot load the named skill, tell it to read the skill file directly and follow it. The skills are symlinked into the runtime skills directory; resolve the path with `readlink -f ~/.claude/skills/dot-audit-CATEGORY/SKILL.md` if needed.
 
@@ -38,20 +38,7 @@ The five sub-audits are:
 
 ## Findings schema
 
-Every sub-audit returns an array of objects with this shape:
-
-```json
-[
-  {
-    "category": "secrets|auth|database|input|endpoints",
-    "location": "path/to/file.ts:42 | table:public.users | POST /api/generate",
-    "issue": "what is wrong, in one line",
-    "attack": "how an attacker finds or exploits it",
-    "severity": "CRITICAL|HIGH|MEDIUM",
-    "fix": "the exact change to make"
-  }
-]
-```
+Every sub-audit returns the array defined in [findings-schema.md](findings-schema.md): `category`, `location`, `issue`, `attack`, `severity` (`CRITICAL|HIGH|MEDIUM`), `fix`. Read that file before merging; it is the only definition.
 
 ## Output
 

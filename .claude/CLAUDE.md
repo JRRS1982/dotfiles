@@ -24,7 +24,7 @@ Claude Code loads every applicable `CLAUDE.md` into context. It does not resolve
 
 ## Commits
 
-- Prefix commit messages with the branch name, e.g. `GOLD-123: add avatar upload` (the `/dot-gc` skill and the `gc` shell helper both do this automatically).
+- Start the commit title with the Jira key in square brackets when the branch name has one, e.g. `[GOLD-123] Add avatar upload`. With no key, the title stands alone. The `/dot-gc` skill and the `gc` shell helper both do this automatically.
 
 ## Skills
 

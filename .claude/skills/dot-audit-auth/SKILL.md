@@ -35,19 +35,4 @@ Cover each of the four areas above. For CRITICAL findings, write the concrete ex
 
 ## Orchestrated mode
 
-When invoked by `dot-audit` (or told to return structured findings), output ONLY a JSON array:
-
-```json
-[
-  {
-    "category": "auth",
-    "location": "POST /api/orders",
-    "issue": "Handler reads userId from request body, not the session",
-    "attack": "Send {\"userId\":\"victim\"} to read/modify another user's orders",
-    "severity": "CRITICAL",
-    "fix": "Derive the user from the verified session; ignore any client-supplied user ID"
-  }
-]
-```
-
-Return `[]` if nothing is found.
+When invoked by `dot-audit` (or told to return structured findings), output ONLY the JSON findings array defined in `~/.claude/skills/dot-audit/findings-schema.md`. Read that file first. Set `category` to `auth`. Return `[]` if nothing is found.
