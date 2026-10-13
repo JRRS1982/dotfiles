@@ -42,22 +42,26 @@ One sentence on what the change does. It becomes the header of the review.
 
 Always: `conventions`, `bugs`, `history`, `comments`.
 
-Conditional, each keyed to an observable predicate. Both use this pathspec, which excludes tests, fixtures, docs, and config, and which works the same in bash and zsh:
+Conditional, each keyed to an observable predicate. All three use this pathspec, which excludes tests, fixtures, docs, and config, and which works the same in bash and zsh:
 
 ```
 EXCL=(. ':(exclude)*test*' ':(exclude)*spec*' ':(exclude)*__tests__*' ':(exclude)*fixtures*' ':(exclude)*.md' ':(exclude)*.json' ':(exclude)*.ya?ml' ':(exclude)*.lock' ':(exclude)*.snap')
 git diff --name-only "$MERGE_BASE"..HEAD -- "${EXCL[@]}"          # SOURCE files
 git diff "$MERGE_BASE"..HEAD -- "${EXCL[@]}" | grep -E '^\+' | grep -Eq 'try|catch|except|rescue|fallback|\?\?|\berror\b'
+git diff "$MERGE_BASE"..HEAD -- "${EXCL[@]}" | grep -E '^\+' | grep -Eq 'MAX_[A-Z_]+|_LIMIT\b|\bLIMIT_|checkRateLimit|\.(safe)?[Pp]arse\(|z\.(number|string|enum)\(|\bmin\(|\bmax\(|throw new|requireUser|\bassert[A-Z]'
 ```
 
 - `tests` runs when the first command prints at least one file.
-- `silent-failures` runs when the second command succeeds. `error` is in the list because some libraries return `{ data, error }` instead of throwing, so their error paths have no catch. Only added lines are searched, so prose in a design document does not trigger it.
+- `silent-failures` runs when the second command succeeds. `error` is in the list because some libraries return `{ data, error }` instead of throwing, so their error paths have no catch.
+- `completeness` runs when the third command succeeds. It matches a diff that adds a ceiling, a rate-limit check, a validation bound, or an auth/ownership guard — the cases where the risk is not that the guard is wrong but that another path to the same sink was left without one. Deliberately broad: a false positive costs one agent, while a miss ships a guarantee the code does not keep.
+
+Only added lines are searched in all three, so prose in a design document does not trigger them.
 
 Record in the todo list which conditional lenses run and which predicate fired.
 
 ## Step 5 — Run the lenses (parallel)
 
-One **Sonnet** agent per lens, all launched in the same turn. Each agent receives: the contents of its `lenses/<name>.md` verbatim, BASE and MERGE_BASE, the diff, the changed-file list, the convention paths from Step 2, and the severity scale below verbatim. The `bugs` lens may read whole modified files and grep for call sites; the others read the diff and the files it names.
+One **Sonnet** agent per lens, all launched in the same turn. Each agent receives: the contents of its `lenses/<name>.md` verbatim, BASE and MERGE_BASE, the diff, the changed-file list, the convention paths from Step 2, and the severity scale below verbatim. The `bugs` lens may read whole modified files and grep for call sites; `completeness` must grep the whole repository, because the path it is looking for is by definition outside the diff; the others read the diff and the files it names.
 
 Each agent returns at most **five** issues, its most severe. For each: `path:line`, a one-line description, why it was flagged, the quoted line(s) as evidence, and a proposed severity. The cap exists because an uncapped tests lens returned eleven findings on one PR and the judge dropped ten of them.
 

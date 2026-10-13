@@ -6,7 +6,7 @@ Any branch whose diff against its base touches only `.md` files. On 2026-10-06 t
 
 ## Expected behaviour
 
-- Step 4: SOURCE is empty, so the `tests` lens does not run. The `silent-failures` predicate must not fire even though the prose contains the word "fallback", because only added lines in SOURCE files are searched.
+- Step 4: SOURCE is empty, so the `tests` lens does not run. Neither the `silent-failures` nor the `completeness` predicate may fire even though the prose contains words they match — "fallback" for the first, "limit" or "throw new" for the second — because only added lines in SOURCE files are searched, and the pathspec excludes Markdown.
 - Steps 5 to 7: the four unconditional lenses run; nothing survives.
 - Output: the no-findings block, naming only the four lenses that ran.
 
