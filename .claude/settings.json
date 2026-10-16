@@ -44,7 +44,8 @@
       "mcp__plugin_playwright_playwright__browser_snapshot",
       "mcp__plugin_playwright_playwright__browser_take_screenshot",
       "mcp__claude_ai_Atlassian_Rovo__getJiraIssue",
-      "mcp__plugin_claude-mem_mcp-search__get_observations"
+      "mcp__plugin_claude-mem_mcp-search__get_observations",
+      "Bash(gh pr review * --comment *)"
     ],
     "defaultMode": "auto"
   },
