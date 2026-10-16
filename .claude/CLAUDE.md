@@ -29,7 +29,6 @@ Claude Code loads every applicable `CLAUDE.md` into context. It does not resolve
 ## Skills
 
 - Skills that ship from this dotfiles repo are prefixed `dot-` (e.g. `dot-gc`) to signal their provenance and distinguish them from plugin-provided skills.
-- Before answering a codebase question from `graphify-out/`, run `graphify-stale`. Exit 1 means refresh it first (`--fix`, costs no tokens); exit 2 means this repo has no graph, so answer normally without building one.
 
 ## Output styles
 
