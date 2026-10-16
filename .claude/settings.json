@@ -261,5 +261,11 @@
   "preferredNotifChannel": "auto",
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": false,
-  "skipAutoPermissionPrompt": true
+  "skipAutoPermissionPrompt": true,
+  "mcpServers": {
+    "codebase-memory-mcp": {
+      "command": "/home/jeremyadmin/.local/bin/codebase-memory-mcp",
+      "args": []
+    }
+  }
 }
