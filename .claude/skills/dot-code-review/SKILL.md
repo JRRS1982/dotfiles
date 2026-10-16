@@ -2,7 +2,6 @@
 name: dot-code-review
 description: Use when the user types /dot-code-review to get a review of the current branch's diff as a paste-ready PR comment. Reads local git, so it works on any host; optionally checks a linked Jira ticket's acceptance criteria and posts to a GitHub PR.
 argument-hint: "[base] [JIRA-KEY] [--post] [--praise]"
-disable-model-invocation: true
 allowed-tools: Bash(git *), Bash(gh pr *), Agent, Read, Grep, Glob, mcp__claude_ai_Atlassian_Rovo__getAccessibleAtlassianResources, mcp__claude_ai_Atlassian_Rovo__getJiraIssue, mcp__claude_ai_Atlassian_Rovo_2__getAccessibleAtlassianResources, mcp__claude_ai_Atlassian_Rovo_2__getJiraIssue
 ---
 
