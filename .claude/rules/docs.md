@@ -7,9 +7,9 @@ paths:
 
 # Writing documentation
 
-Reading time is the cost. A document earns its length only by saving the reader more time than it takes.
+Reading time and inaccuracy are a cost. A document earns its length only by saving the reader more time than it takes and by being accurate.
 
-- Follow the repository's own standard first (`docs/standards/`, `docs/README.md`, templates beside the docs). These rules fill the gaps.
+- Layout follows Diátaxis: `docs/tutorials/`, `docs/how-to/`, `docs/reference/`, `docs/explanation/`, plus `docs/decisions/` for ADRs, with `docs/README.md` as the index. Kebab-case file names. A repository with an older layout migrates a page when it is next edited, not all at once.
 - Write for one reader with one job. Name the job in the first line: "How to …", "Why we …", "What X does". If a page serves two jobs, it is two pages. This is the Diátaxis split: tutorial, how-to, reference, explanation. Never mix a how-to with its explanation.
 - A README answers four things in order, each in a sentence or a command: what this is, how to run it, how to test it, where the rest of the docs are. Nothing else lives there.
 - Do not write what the code already says. Document decisions, constraints, and the why. A decision with alternatives gets an ADR: context, decision, consequences, one page.
