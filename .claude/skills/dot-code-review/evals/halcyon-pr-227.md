@@ -20,7 +20,7 @@ Remove with `git worktree remove --force /tmp/halcyon-pr227` afterwards.
 
 ## Expected behaviour
 
-- Step 4: the `completeness` lens runs — added lines introduce `MAX_PLAN_ROWS_PER_KIND`, `MAX_ITEMS_PER_PERIOD` and `requiredOnVercelProduction(...)`. `tests` runs. `silent-failures` runs (`throw new Error` on the new ceilings).
+- Step 4: all seven lenses run. The diff adds `MAX_PLAN_ROWS_PER_KIND`, `MAX_ITEMS_PER_PERIOD` and `requiredOnVercelProduction(...)`, which is what `completeness` looks for.
 - Step 5, the `completeness` lens must report all three of these. Each is a path to a sink the diff guards, in a file the diff never opens:
   - `src/lib/plan/applySyncPlan.ts` around line 200: `addRow` creates `PlanAsset`/`PlanLiability`/`PlanIncome`/`PlanExpense` with `tx.*.create()` and never calls `nextSortOrderWithinCap`, so `MAX_PLAN_ROWS_PER_KIND` does not apply to the Sync path at all.
   - `src/app/(app)/balance/actions.ts` around line 195: `copyBalancePeriodFrom` writes one `BalanceItem` per live account via `createMany` with no cap, while the twin `copyPeriodFrom` in the diff gains `MAX_ITEMS_PER_PERIOD`.

@@ -14,7 +14,7 @@ Remove with `git worktree remove --force /tmp/halcyon-pr208` afterwards.
 
 ## Expected behaviour
 
-- Step 4: SOURCE lists 14 files; the `tests` lens runs; the `silent-failures` lens runs (the source diff contains `catch`, `??` and `error`).
+- Step 4: all seven lenses run.
 - Step 5: the `history` lens returns no issues. Every other lens returns at least one.
 - Step 6 and 7, findings that must survive as **Blocking**:
   - `src/app/(app)/settings/DataPrivacy.tsx` around line 126: the client maps thrown server-action messages, but production Next.js redacts them, so a wrong password always shows the generic fallback. Judge score 90 or above.
@@ -25,4 +25,4 @@ Remove with `git worktree remove --force /tmp/halcyon-pr208` afterwards.
 
 ## Baseline (2026-10-06)
 
-Twenty-nine raw findings from six lenses, twenty-five after merging duplicates, five survived the judge. The tests lens alone produced eleven, which is why lenses are now capped at five.
+Twenty-nine raw findings from the six lenses of that version (`completeness` did not yet exist), twenty-five after merging duplicates, five survived the judge. The tests lens alone produced eleven, which is why lenses are now capped at five.

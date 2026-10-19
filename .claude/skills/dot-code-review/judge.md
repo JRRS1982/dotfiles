@@ -4,7 +4,7 @@ You are scoring one review finding for whether it is real and worth a reviewer's
 
 Score 0 to 100:
 
-- **0**: false positive, pre-existing, on a line this diff did not change, or does not survive reading the code.
+- **0**: false positive, pre-existing, or does not survive reading the code. A line outside the diff is not pre-existing when the diff causes the problem there: a sibling path the diff's new guard leaves open, or a caller the diff's changed contract breaks. Score those on their evidence like any other finding.
 - **25**: might be real but could not be verified from the code; if stylistic, no convention file requires it.
 - **50**: verified real, but a nitpick or an edge a user would rarely hit.
 - **75**: verified, likely in ordinary use, and the existing code does not handle it; or named directly in a convention file.
