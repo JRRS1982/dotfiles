@@ -31,6 +31,8 @@ Tests exist to stop a user-visible failure from shipping. Every rule below serve
 - A logger counts as a boundary: a log line is output the app emits, like an email, so asserting one was written checks a result, not an internal.
 - For a stateful service, prefer a small in-memory fake shared from a test support folder over scripted return values per test.
 - Use the real database for integration tests. A mocked query layer proves nothing about the query.
+- When your code asks a collaborator for data, stub the answer; don't assert the question was asked. When it tells a collaborator to do something (send an email, write, revoke), assert the instruction was given.
+- Check every fake against the real interface — by type, or by a test both run — so it cannot drift from what it replaces.
 - If a double lets a test pass that the real thing would fail, the double is lying: fix it or delete it.
 
 ## Determinism
