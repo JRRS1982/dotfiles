@@ -2,7 +2,7 @@
 
 Question: does this diff break an instruction that a convention file actually states?
 
-Read every convention file you were given, then the diff. Flag only a violation of an instruction written in one of those files, and quote the instruction in `why flagged`. Do not flag:
+Read every convention file you were given, then the diff. Flag only a violation of an instruction written in one of those files, and quote the instruction in `why flagged`. The Coding section of the user-level CLAUDE.md is judgement, not instruction: the `modularity` lens owns it, so skip it here. Do not flag:
 
 - taste you hold that no file states
 - anything a linter, formatter, or type-checker would catch

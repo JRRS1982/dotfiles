@@ -32,7 +32,7 @@ If JIRA_KEY was not passed, extract one from `git branch --show-current` with th
 
 ## Step 2 — Gather conventions
 
-List the file paths (not contents) of: the repo-root `CLAUDE.md`, any `CLAUDE.md` in a directory the diff touches, and any convention file those files point to (e.g. `.ai/*.md`, `docs/standards/*.md`, `.claude/rules/*.md`). These are the criteria for the conventions lens.
+List the file paths (not contents) of: the repo-root `CLAUDE.md`, any `CLAUDE.md` in a directory the diff touches, any convention file those files point to, and the project's `.claude/rules/*.md`. Then add the user-level files, which the lens agents cannot see on their own: `~/.claude/CLAUDE.md` (its Coding section is the set of principles the modularity lens measures against), `~/.claude/rules/reviewing.md`, and every other file in `~/.claude/rules/` whose `paths` globs match a changed file. These are the criteria for the conventions, consistency, modularity, and architecture lenses.
 
 ## Step 3 — Summarise the change
 
@@ -40,13 +40,13 @@ One sentence on what the change does. It becomes the header of the review.
 
 ## Step 4 — The lenses
 
-All seven lenses run on every diff: `conventions`, `bugs`, `history`, `comments`, `tests`, `silent-failures`, `completeness`.
+All ten lenses run on every diff: `conventions`, `bugs`, `history`, `comments`, `tests`, `silent-failures`, `completeness`, `consistency`, `modularity`, `architecture`. Three of them look at structure at different scopes: `consistency` at the local pattern, `modularity` at the shape of a function or module, `architecture` at boundaries, contracts, and moving parts.
 
 Nothing gates them. An earlier version keyed the last three to greps over the diff to save agent runs on small changes, but the greps fired on nearly every diff and hid bugs of their own, so the gate saved nothing.
 
 ## Step 5 — Run the lenses (parallel)
 
-One agent per lens, all launched in the same turn. Each agent receives: the contents of its `lenses/<name>.md` verbatim, BASE and the resolved merge-base SHA, the diff, the changed-file list, the convention paths from Step 2, and the severity scale below verbatim. The `bugs` lens may read whole modified files and grep for call sites; `completeness` must grep the whole repository, because the path it is looking for is by definition outside the diff; the others read the diff and the files it names.
+One agent per lens, all launched in the same turn. Each agent receives: the contents of its `lenses/<name>.md` verbatim, BASE and the resolved merge-base SHA, the diff, the changed-file list, the convention paths from Step 2, and the severity scale below verbatim. The `bugs` lens may read whole modified files and grep for call sites; `completeness` must grep the whole repository, because the path it is looking for is by definition outside the diff; `consistency` must read the sibling files it compares against and grep for existing helpers, because drift is only visible next to what already exists; `modularity` reads the diff and the principles only; `architecture` reads the diff's edges and enough surrounding structure to locate the boundaries; the others read the diff and the files it names.
 
 Each agent returns at most **five** issues, its most severe. For each: `path:line`, a one-line description, why it was flagged, the quoted line(s) as evidence, and a proposed severity. The cap exists because an uncapped tests lens returned eleven findings on one PR and the judge dropped ten of them.
 
@@ -57,7 +57,7 @@ Severity scale (give verbatim):
 
 ## Step 6 — Judge each finding (parallel)
 
-First merge duplicates: findings from different lenses on the same lines and the same root cause become one finding, keeping the highest severity and the strongest evidence.
+First merge duplicates: findings from different lenses on the same lines and the same root cause become one finding, keeping the highest severity and the strongest evidence. Then reconcile the structure lenses: where `modularity` reports a **good departure** on the same lines that `consistency` flags as drift, drop the consistency finding and keep only a Nit asking that the departure be stated in the pull request description if it is not.
 
 Then one agent per file that has findings, all in the same turn; files with a single finding share one agent. Each receives `judge.md` verbatim, every finding for that file with its evidence, and the diff. It scores each finding separately and returns, per finding: a score, its own quoted evidence, and one sentence. A score with no quote is invalid: treat it as 0. One agent per file rather than per finding, because each judge must re-read the same diff and file, and findings in one file share that context.
 
@@ -109,7 +109,7 @@ Rules for the block:
 ```
 **Review — <one-line summary of the change>**
 
-No blocking issues found — checked for bugs, conventions, history, comments, tests, silent failures, completeness.
+No blocking issues found — checked for bugs, conventions, history, comments, tests, silent failures, completeness, consistency, modularity, architecture.
 ```
 appending `Strength:` and `AC coverage:` lines under the same rules.
 
