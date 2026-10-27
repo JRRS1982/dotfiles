@@ -220,7 +220,8 @@
     "market-researcher@claude-for-financial-services": false,
     "investment-banking@claude-for-financial-services": false,
     "equity-research@claude-for-financial-services": false,
-    "datadog@claude-plugins-official": true
+    "datadog@claude-plugins-official": true,
+    "impeccable@impeccable": true
   },
   "extraKnownMarketplaces": {
     "thedotmack": {
@@ -245,6 +246,12 @@
       "source": {
         "source": "github",
         "repo": "anthropics/financial-services"
+      }
+    },
+    "impeccable": {
+      "source": {
+        "source": "github",
+        "repo": "pbakaus/impeccable"
       }
     }
   },
