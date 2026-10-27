@@ -122,7 +122,6 @@ Two different mechanisms, reproduced two different ways:
   | `claude-mem` | `thedotmack` | ✅ | Persistent cross-session memory; bundles the `mcp-search` MCP server |
   | `playwright` | official | ✅ | MCP server for browser automation |
   | `code-simplifier` | official | ✅ | Simplification/refactor agent |
-  | `ui-ux-pro-max` | `nextlevelbuilder` | ✅ | UI/UX design skills (styles, palettes, design systems, slides) |
   | `context7` | official | ❌ | MCP server for live, version-accurate library docs |
   | `security-guidance` | official | ❌ | Defensive-security guidance |
   | `explanatory-output-style` | official | ❌ | The "explanatory" output style |
@@ -206,7 +205,6 @@ auto-trigger.
 |---|---|
 | `dot-gc` | Commit with the branch name as prefix (`GOLD-123: …`) — typed |
 | `dot-code-review` | Branch diff → paste-ready PR comment, incl. Jira AC coverage — typed |
-| `dot-deslop` | Strip AI-introduced slop from the branch diff; also lints a `SKILL.md` — typed |
 | `dot-council` | Panel of models answer, rank each other blind, chairman synthesises — typed |
 | `dot-audit` | Runs the five sub-audits below in parallel, merged severity-ranked report |
 | `dot-audit-secrets` | Exposed keys, secrets in git history, secrets shipped to the browser |

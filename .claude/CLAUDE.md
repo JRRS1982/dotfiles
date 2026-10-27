@@ -49,6 +49,8 @@ Claude Code loads every applicable `CLAUDE.md` into context. It does not resolve
 - Prefer pure functions and immutable data structures.
 - Minimize dependencies.
 - Code defensively, but avoid premature optimization.
+- Every changed line traces to the request. Remove what your change left unused; mention pre-existing dead code, do not delete it.
+- Never weaken a check to make a change pass: no new suppression, skipped test, loosened assertion or lowered threshold without saying why in the code.
 
 ## Testing
 

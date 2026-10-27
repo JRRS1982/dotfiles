@@ -40,15 +40,17 @@ One sentence on what the change does. It becomes the header of the review.
 
 ## Step 4 — The lenses
 
-All ten lenses run on every diff: `conventions`, `bugs`, `history`, `comments`, `tests`, `silent-failures`, `completeness`, `consistency`, `modularity`, `architecture`. Three of them look at structure at different scopes: `consistency` at the local pattern, `modularity` at the shape of a function or module, `architecture` at boundaries, contracts, and moving parts.
+All eleven lenses run on every diff: `conventions`, `bugs`, `history`, `comments`, `tests`, `silent-failures`, `completeness`, `consistency`, `modularity`, `architecture`, `slop`. Three of them look at structure at different scopes: `consistency` at the local pattern, `modularity` at the shape of a function or module, `architecture` at boundaries, contracts, and moving parts.
 
 Nothing gates them. An earlier version keyed the last three to greps over the diff to save agent runs on small changes, but the greps fired on nearly every diff and hid bugs of their own, so the gate saved nothing.
 
 ## Step 5 — Run the lenses (parallel)
 
-One agent per lens, all launched in the same turn. Each agent receives: the contents of its `lenses/<name>.md` verbatim, BASE and the resolved merge-base SHA, the diff, the changed-file list, the convention paths from Step 2, and the severity scale below verbatim. The `bugs` lens may read whole modified files and grep for call sites; `completeness` must grep the whole repository, because the path it is looking for is by definition outside the diff; `consistency` must read the sibling files it compares against and grep for existing helpers, because drift is only visible next to what already exists; `modularity` reads the diff and the principles only; `architecture` reads the diff's edges and enough surrounding structure to locate the boundaries; the others read the diff and the files it names.
+One agent per lens, all launched in the same turn. Each agent receives: the contents of its `lenses/<name>.md` verbatim, BASE and the resolved merge-base SHA, the diff, the changed-file list, the convention paths from Step 2, and the severity scale below verbatim. The `bugs` lens may read whole modified files and grep for call sites; `completeness` must grep the whole repository, because the path it is looking for is by definition outside the diff; `consistency` must read the sibling files it compares against and grep for existing helpers, because drift is only visible next to what already exists; `modularity` reads the diff and the principles only; `architecture` reads the diff's edges and enough surrounding structure to locate the boundaries; `slop` reads the commit messages (`git log --format=%B` over the range) for what the task was, and greps for a symbol before calling it orphaned; the others read the diff and the files it names.
 
 Each agent returns at most **five** issues, its most severe. For each: `path:line`, a one-line description, why it was flagged, the quoted line(s) as evidence, and a proposed severity. The cap exists because an uncapped tests lens returned eleven findings on one PR and the judge dropped ten of them.
+
+**A lens that did not run is a finding about the review.** If a lens agent errors, times out, returns nothing parseable, or you fall back to running it inline in your own context instead of as its own agent, record the lens name and what happened. Do not re-run it silently and do not drop it: Step 9 reports it. A review with a missing lens reads exactly like a clean one, which is why it must not look like one.
 
 Severity scale (give verbatim):
 - **Blocking** — incorrect or broken behaviour, data-loss risk, or a clear violation of an applicable convention file. Would block merge.
@@ -59,7 +61,7 @@ Severity scale (give verbatim):
 
 First merge duplicates: findings from different lenses on the same lines and the same root cause become one finding, keeping the highest severity and the strongest evidence. Then reconcile the structure lenses: where `modularity` reports a **good departure** on the same lines that `consistency` flags as drift, drop the consistency finding and keep only a Nit asking that the departure be stated in the pull request description if it is not.
 
-Then one agent per file that has findings, all in the same turn; files with a single finding share one agent. Each receives `judge.md` verbatim, every finding for that file with its evidence, and the diff. It scores each finding separately and returns, per finding: a score, its own quoted evidence, and one sentence. A score with no quote is invalid: treat it as 0. One agent per file rather than per finding, because each judge must re-read the same diff and file, and findings in one file share that context.
+Then one agent per file that has findings, all in the same turn; files with a single finding share one agent. Each receives `judge.md` verbatim, every finding for that file with its evidence, and the diff. It scores each finding separately and returns, per finding: a score, its own quoted evidence, and one sentence. A score with no quote is invalid: treat it as 0. A judge that fails leaves its findings unscored: record that file under the same rule as a missing lens. One agent per file rather than per finding, because each judge must re-read the same diff and file, and findings in one file share that context.
 
 **Drop every finding scoring below 70.** A finding scoring 70 to 79 is verified but minor, so it is at most **Suggested**. Only a finding scoring 80 or above may be **Blocking**, and only after Step 7. If nothing remains, there are no findings.
 
@@ -101,6 +103,7 @@ AC coverage: 2/3 — no handling for "invalid file type rejected with a clear me
 ```
 
 Rules for the block:
+- If any lens or judge did not run (Step 5, Step 6), the **first line** of the block, above the header, is `**INCOMPLETE — <lens or judge> did not run: <one-line reason>.**`, one line per failure. With an INCOMPLETE line, never print "No blocking issues found"; print the surviving findings, or `No findings from the lenses that ran.` A silent partial review is a failed review.
 - The header summary is Step 3's sentence. `<N>` is the count of surviving findings.
 - Include `Strength:` only with `--praise`, and `AC coverage:` only if Step 8 produced one.
 - Cite `path:line` for every finding. If there are many, lead with the most important and keep each to one line.
@@ -109,7 +112,7 @@ Rules for the block:
 ```
 **Review — <one-line summary of the change>**
 
-No blocking issues found — checked for bugs, conventions, history, comments, tests, silent failures, completeness, consistency, modularity, architecture.
+No blocking issues found — checked for bugs, conventions, history, comments, tests, silent failures, completeness, consistency, modularity, architecture, slop.
 ```
 appending `Strength:` and `AC coverage:` lines under the same rules.
 

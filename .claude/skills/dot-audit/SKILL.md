@@ -52,7 +52,7 @@ Produce, in this order:
    - For secrets that ever touched a commit, the `fix` cell must say to **rotate** — hiding is not enough.
 3. **Per-category notes** — anything a sub-audit flagged that does not fit a table cell (e.g. corrected SQL from the database audit, long example payloads from the input audit). Keep these as short labelled code blocks below the table.
 
-If a sub-audit failed to run, say so explicitly in the header rather than silently dropping that category.
+If a sub-audit did not run — it errored, timed out, returned something other than a findings array, or you ran it inline instead of as its own subagent — the **first line** of the report, above the header, is `**INCOMPLETE — dot-audit-<category> did not run: <one-line reason>.**`, one line per failure. Never drop a category silently, and never report a zero count for a category that did not run: a missing audit reads exactly like a clean one. An empty array `[]` from a subagent that ran is a clean result, not a failure.
 
 ## Notes
 
