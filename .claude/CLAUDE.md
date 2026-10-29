@@ -38,7 +38,7 @@ Claude Code loads every applicable `CLAUDE.md` into context. It does not resolve
 ## Subagents
 
 - Delegate only when all three hold: the files are known, the acceptance check is stated, and the task does not depend on work still in flight. Otherwise do it in the main session, where the context is. When in doubt, do not delegate.
-- Pick the agent by what the task needs. If it needs conversation context, use the `fork` type, which inherits everything and needs no brief. If it can be stated fully in a brief (renames, boilerplate, test scaffolding, formatting), use a fresh agent with a cheaper `model`. Never send a context-free brief to the main model; that pays full price and still risks drift.
+- Pick the agent by what the task needs. If it needs conversation context, use the `fork` type, which inherits everything and needs no brief. If it can be stated fully in a brief (exports, conversions, renames, boilerplate, test scaffolding, formatting), use a fresh agent with `model: "haiku"`, or `"sonnet"` when it needs judgement. Never send a context-free brief to the main model; that pays full price and still risks drift.
 - When a skill with its own dispatch rules is active (e.g. subagent-driven development), its rules replace these.
 
 ## Coding
