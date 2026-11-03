@@ -2,7 +2,15 @@
 
 Question: do the modules this change creates or follows hide more than they expose?
 
-The yardstick is the Coding section of the user's CLAUDE.md, passed to you as a convention path. Read it; do not restate it. Every finding names the principle it measures against and quotes the fact that fails the test. Score the pattern, not the author.
+The yardstick is these principles:
+
+- Follow the existing style of the repository; it overrides every principle below.
+- Design deep modules: a simple interface that hides substantial implementation. Prefer a few strong abstractions over many shallow wrappers.
+- Reuse before you add.
+- Prefer pure functions and immutable data structures.
+- Minimize dependencies.
+
+If the convention paths include a user-level `~/.claude/CLAUDE.md`, read its Coding section too: it adds to these, and where it conflicts, it wins. Do not restate either. Every finding names the principle it measures against and quotes the fact that fails the test. Score the pattern, not the author.
 
 ## The tests
 

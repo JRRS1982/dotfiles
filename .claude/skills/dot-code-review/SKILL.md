@@ -2,7 +2,7 @@
 name: dot-code-review
 description: Use when the user types /dot-code-review to get a review of the current branch's diff as a paste-ready PR comment. Reads local git, so it works on any host; optionally checks a linked Jira ticket's acceptance criteria and posts to a GitHub PR.
 argument-hint: "[base] [JIRA-KEY] [--post] [--praise]"
-allowed-tools: Bash(git *), Bash(gh pr *), Agent, Read, Grep, Glob, mcp__claude_ai_Atlassian_Rovo__getAccessibleAtlassianResources, mcp__claude_ai_Atlassian_Rovo__getJiraIssue, mcp__claude_ai_Atlassian_Rovo_2__getAccessibleAtlassianResources, mcp__claude_ai_Atlassian_Rovo_2__getJiraIssue
+allowed-tools: Bash(git diff *), Bash(git log *), Bash(git blame *), Bash(git show *), Bash(git fetch *), Bash(git rev-parse *), Bash(git merge-base *), Bash(git status *), Bash(git remote get-url *), Bash(git branch --show-current), Bash(gh pr view *), Bash(gh pr review --comment *), Agent, Read, Grep, Glob, mcp__claude_ai_Atlassian_Rovo__getAccessibleAtlassianResources, mcp__claude_ai_Atlassian_Rovo__getJiraIssue, mcp__claude_ai_Atlassian_Rovo_2__getAccessibleAtlassianResources, mcp__claude_ai_Atlassian_Rovo_2__getJiraIssue
 ---
 
 You are producing a code review of the **current branch's diff against its base**, formatted as a concise comment for a pull request. By default you read local git only and post nothing; `--post` (Step 9) is the only step that writes anywhere.
@@ -12,7 +12,7 @@ Make a todo list first, then follow these steps precisely. The lens briefs in `l
 ## Step 1 — Resolve the base and the diff
 
 Parse `$ARGUMENTS`:
-- `--post` → post the finished review to the branch's GitHub PR (Step 9).
+- `--post` → post the finished review to the branch's GitHub PR (Step 9). Only when `--post` is in the arguments you were given; never add it yourself, even when the user asks for a review in passing.
 - `--praise` → add one line on what the change does well (Step 8).
 - A token matching `[A-Z]+-[0-9]+` (e.g. `GOLD-1234`) is the **JIRA_KEY**.
 - Any other token is the **BASE**: a branch or a commit.
@@ -32,7 +32,7 @@ If JIRA_KEY was not passed, extract one from `git branch --show-current` with th
 
 ## Step 2 — Gather conventions
 
-List the file paths (not contents) of: the repo-root `CLAUDE.md`, any `CLAUDE.md` in a directory the diff touches, any convention file those files point to, and the project's `.claude/rules/*.md`. Then add the user-level files, which the lens agents cannot see on their own: `~/.claude/CLAUDE.md` (its Coding section is the set of principles the modularity lens measures against), `~/.claude/rules/reviewing.md`, and every other file in `~/.claude/rules/` whose `paths` globs match a changed file. These are the criteria for the conventions, consistency, modularity, and architecture lenses.
+List the file paths (not contents) of: the repo-root `CLAUDE.md`, any `CLAUDE.md` in a directory the diff touches, any convention file those files point to, and the project's `.claude/rules/*.md`. Then add the user-level files, which the lens agents cannot see on their own: `~/.claude/CLAUDE.md` (its Coding section adds to the principles the modularity lens carries), `~/.claude/rules/reviewing.md`, and every other file in `~/.claude/rules/` whose `paths` globs match a changed file. These are the criteria for the conventions, consistency, modularity, and architecture lenses.
 
 ## Step 3 — Summarise the change
 
@@ -42,11 +42,11 @@ One sentence on what the change does. It becomes the header of the review.
 
 All eleven lenses run on every diff: `conventions`, `bugs`, `history`, `comments`, `tests`, `silent-failures`, `completeness`, `consistency`, `modularity`, `architecture`, `slop`. Three of them look at structure at different scopes: `consistency` at the local pattern, `modularity` at the shape of a function or module, `architecture` at boundaries, contracts, and moving parts.
 
-Nothing gates them. An earlier version keyed the last three to greps over the diff to save agent runs on small changes, but the greps fired on nearly every diff and hid bugs of their own, so the gate saved nothing.
+Nothing gates them. An earlier version keyed `tests`, `silent-failures`, and `completeness` to greps over the diff to save agent runs on small changes, but the greps fired on nearly every diff and hid bugs of their own, so the gate saved nothing.
 
 ## Step 5 — Run the lenses (parallel)
 
-One agent per lens, all launched in the same turn. Each agent receives: the contents of its `lenses/<name>.md` verbatim, BASE and the resolved merge-base SHA, the diff, the changed-file list, the convention paths from Step 2, and the severity scale below verbatim. The `bugs` lens may read whole modified files and grep for call sites; `completeness` must grep the whole repository, because the path it is looking for is by definition outside the diff; `consistency` must read the sibling files it compares against and grep for existing helpers, because drift is only visible next to what already exists; `modularity` reads the diff and the principles only; `architecture` reads the diff's edges and enough surrounding structure to locate the boundaries; `slop` reads the commit messages (`git log --format=%B` over the range) for what the task was, and greps for a symbol before calling it orphaned; the others read the diff and the files it names.
+One agent per lens, all launched in the same turn. Each agent receives: the contents of its `lenses/<name>.md` verbatim, BASE and the resolved merge-base SHA, the diff, the changed-file list, the convention paths from Step 2, and the severity scale below verbatim. The `bugs` lens may read whole modified files and grep for call sites; `completeness` must grep the whole repository, because the path it is looking for is by definition outside the diff; `consistency` must read the sibling files it compares against and grep for existing helpers, because drift is only visible next to what already exists; `modularity` reads the diff, the principles in its brief (plus the reviewer's `~/.claude/CLAUDE.md` Coding section when it exists), and the other modules a leaked fact or a likely change would touch; `architecture` reads the diff's edges and enough surrounding structure to locate the boundaries; `slop` reads the commit messages (`git log --format=%B` over the range) for what the task was, and greps for a symbol before calling it orphaned; the others read the diff and the files it names.
 
 Each agent returns at most **five** issues, its most severe. For each: `path:line`, a one-line description, why it was flagged, the quoted line(s) as evidence, and a proposed severity. The cap exists because an uncapped tests lens returned eleven findings on one PR and the judge dropped ten of them.
 

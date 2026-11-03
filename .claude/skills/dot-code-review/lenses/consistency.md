@@ -13,4 +13,4 @@ Quote the sibling and the departure side by side. A departure that is stated and
 
 Layering and ownership belong to the `architecture` lens; this lens compares the change with its nearest siblings only.
 
-Severity: duplication of an existing helper is Blocking. The rest Suggested.
+Severity: Suggested, as the shared scale has it for duplicated logic. A duplicate is Blocking only when it already behaves differently from the helper it copies, because then one of the two is wrong.
