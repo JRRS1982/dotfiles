@@ -204,7 +204,8 @@ auto-trigger.
 | Skill | Does |
 |---|---|
 | `dot-gc` | Commit with the branch name as prefix (`GOLD-123: …`) — typed |
-| `dot-code-review` | Branch diff → paste-ready PR comment, incl. Jira AC coverage — typed |
+| `dot-code-review` | Branch diff → paste-ready PR comment, incl. Jira AC coverage and staging status — typed |
+| `dot-stg-check` | Was this PR deployed to staging and acceptance-tested? Read from CircleCI statuses on GitHub |
 | `dot-council` | Panel of models answer, rank each other blind, chairman synthesises — typed |
 | `dot-audit` | Runs the five sub-audits below in parallel, merged severity-ranked report |
 | `dot-audit-secrets` | Exposed keys, secrets in git history, secrets shipped to the browser |
