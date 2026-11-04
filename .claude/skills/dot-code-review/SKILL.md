@@ -2,7 +2,7 @@
 name: dot-code-review
 description: Use when the user types /dot-code-review to get a review of the current branch's diff as a paste-ready PR comment. Reads local git, so it works on any host; optionally checks a linked Jira ticket's acceptance criteria and posts to a GitHub PR.
 argument-hint: "[base] [JIRA-KEY] [--post] [--praise]"
-allowed-tools: Bash(git diff *), Bash(git log *), Bash(git blame *), Bash(git show *), Bash(git fetch *), Bash(git rev-parse *), Bash(git merge-base *), Bash(git status *), Bash(git remote get-url *), Bash(git branch --show-current), Bash(gh pr view *), Bash(gh pr review --comment *), Agent, Read, Grep, Glob, mcp__claude_ai_Atlassian_Rovo__getAccessibleAtlassianResources, mcp__claude_ai_Atlassian_Rovo__getJiraIssue, mcp__claude_ai_Atlassian_Rovo_2__getAccessibleAtlassianResources, mcp__claude_ai_Atlassian_Rovo_2__getJiraIssue
+allowed-tools: Bash(git diff *), Bash(git log *), Bash(git blame *), Bash(git show *), Bash(git fetch *), Bash(git rev-parse *), Bash(git merge-base *), Bash(git status *), Bash(git remote get-url *), Bash(git branch --show-current), Bash(gh pr view *), Bash(gh pr review --comment *), Bash(bash *dot-stg-check/stg-status.sh*), Agent, Read, Grep, Glob, mcp__claude_ai_Atlassian_Rovo__getAccessibleAtlassianResources, mcp__claude_ai_Atlassian_Rovo__getJiraIssue, mcp__claude_ai_Atlassian_Rovo_2__getAccessibleAtlassianResources, mcp__claude_ai_Atlassian_Rovo_2__getJiraIssue
 ---
 
 You are producing a code review of the **current branch's diff against its base**, formatted as a concise comment for a pull request. By default you read local git only and post nothing; `--post` (Step 9) is the only step that writes anywhere.
@@ -13,7 +13,7 @@ Make a todo list first, then follow these steps precisely. The lens briefs in `l
 
 Parse `$ARGUMENTS`:
 - `--post` → post the finished review to the branch's GitHub PR (Step 9). Only when `--post` is in the arguments you were given; never add it yourself, even when the user asks for a review in passing.
-- `--praise` → add one line on what the change does well (Step 8).
+- `--praise` → add one line on what the change does well (Step 8c).
 - A token matching `[A-Z]+-[0-9]+` (e.g. `GOLD-1234`) is the **JIRA_KEY**.
 - Any other token is the **BASE**: a branch or a commit.
 
@@ -84,6 +84,12 @@ Otherwise downgrade it to **Suggested**. Never run anything that writes outside 
 
 Resolve the site with `getAccessibleAtlassianResources` and take the first `id` as the cloudId; never hard-code one. Fetch the ticket with `getJiraIssue` and read its acceptance criteria. From the diff, assess which criteria the change plausibly satisfies, and produce ONE line: `AC coverage: <met>/<total> — <the most important unmet or unclear criterion>`. If the ticket has no explicit criteria, write `AC coverage: ticket has no explicit acceptance criteria`. If the tools are unavailable or either call fails, omit the line entirely; do not error.
 
+## Step 8b — Staging and acceptance tests
+
+Run the `dot-stg-check` skill's script from the repository root, resolving its path as the sibling of this skill's directory: `bash <skills dir>/dot-stg-check/stg-status.sh`. It prints two lines, `Staging: ...` and `Acceptance tests: ...`; keep both verbatim for Step 9. A line beginning `Warning — ` is a nudge to deploy or run tests before merging, never a finding: it does not count towards `<N>` and is never Blocking. If the script errors, keep one line instead, `Staging: check did not run — <one-line reason>`; it is not a missing lens.
+
+## Step 8c — Strength
+
 If `--praise` was passed, also write ONE line, `Strength: <what the change does well>`, grounded in something specific the lenses saw. Without the flag, omit it.
 
 ## Step 9 — Output the review
@@ -100,12 +106,15 @@ Strength: <only with --praise>
 3. **[Nit]** `path:line` — minor point.
 
 AC coverage: 2/3 — no handling for "invalid file type rejected with a clear message".
+
+Staging: deployed on head 1a2b3c4d — deploy-stg-blue (<timestamp>).
+Warning — Acceptance tests: 1/3 passed against deploy-stg-blue on head 1a2b3c4d — passed: chrome; failed: safari; not run: android (approve kick-off-tests-blue). Cover the rest before merging. <url>
 ```
 
 Rules for the block:
 - If any lens or judge did not run (Step 5, Step 6), the **first line** of the block, above the header, is `**INCOMPLETE — <lens or judge> did not run: <one-line reason>.**`, one line per failure. With an INCOMPLETE line, never print "No blocking issues found"; print the surviving findings, or `No findings from the lenses that ran.` A silent partial review is a failed review.
 - The header summary is Step 3's sentence. `<N>` is the count of surviving findings.
-- Include `Strength:` only with `--praise`, and `AC coverage:` only if Step 8 produced one.
+- Include `Strength:` only with `--praise`, and `AC coverage:` only if Step 8 produced one. Always end the block with Step 8b's two lines, after a blank line.
 - Cite `path:line` for every finding. If there are many, lead with the most important and keep each to one line.
 - With **no** surviving findings, output exactly:
 
@@ -114,7 +123,7 @@ Rules for the block:
 
 No blocking issues found — checked for bugs, conventions, history, comments, tests, silent failures, completeness, consistency, modularity, architecture, slop.
 ```
-appending `Strength:` and `AC coverage:` lines under the same rules.
+appending `Strength:`, `AC coverage:` and Step 8b's lines under the same rules.
 
 **`--post` only:** `git remote get-url origin` must contain `github.com`, and `gh pr view --json number,url` must find a PR for the current branch. Post the block from standard input with a **quoted** heredoc:
 
