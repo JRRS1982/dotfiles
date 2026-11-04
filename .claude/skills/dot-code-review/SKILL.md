@@ -86,7 +86,7 @@ Resolve the site with `getAccessibleAtlassianResources` and take the first `id` 
 
 ## Step 8b — Staging and acceptance tests
 
-Run the `dot-stg-check` skill's script from the repository root, resolving its path as the sibling of this skill's directory: `bash <skills dir>/dot-stg-check/stg-status.sh`. It prints two lines, `Staging: ...` and `Acceptance tests: ...`; keep both verbatim for Step 9. A line beginning `Warning — ` is a nudge to deploy or run tests before merging, never a finding: it does not count towards `<N>` and is never Blocking. If the script errors, keep one line instead, `Staging: check did not run — <one-line reason>`; it is not a missing lens.
+Run the `dot-stg-check` skill's script from the repository root, resolving its path as the sibling of this skill's directory: `bash <skills dir>/dot-stg-check/stg-status.sh`. It prints two lines, `Staging: ...` and `Acceptance tests: ...`; keep both verbatim for Step 9, which only adds bold to each line's label. A line beginning `Warning — ` is a nudge to deploy or run tests before merging, never a finding: it does not count towards `<N>` and is never Blocking. If the script errors, keep one line instead, `Staging: check did not run — <one-line reason>`; it is not a missing lens.
 
 ## Step 8c — Strength
 
@@ -107,14 +107,15 @@ Strength: <only with --praise>
 
 AC coverage: 2/3 — no handling for "invalid file type rejected with a clear message".
 
-Staging: deployed on head 1a2b3c4d — deploy-stg-blue (<timestamp>).
-Warning — Acceptance tests: 1/3 passed against deploy-stg-blue on head 1a2b3c4d — passed: chrome; failed: safari; not run: android (approve kick-off-tests-blue). Cover the rest before merging. <url>
+**Staging:** deployed on head 1a2b3c4d — deploy-stg-blue (<timestamp>).
+
+**Warning — Acceptance tests:** 1/3 passed against deploy-stg-blue on head 1a2b3c4d — passed: chrome; failed: safari; not run: android (approve kick-off-tests-blue). Cover the rest before merging. <url>
 ```
 
 Rules for the block:
 - If any lens or judge did not run (Step 5, Step 6), the **first line** of the block, above the header, is `**INCOMPLETE — <lens or judge> did not run: <one-line reason>.**`, one line per failure. With an INCOMPLETE line, never print "No blocking issues found"; print the surviving findings, or `No findings from the lenses that ran.` A silent partial review is a failed review.
 - The header summary is Step 3's sentence. `<N>` is the count of surviving findings.
-- Include `Strength:` only with `--praise`, and `AC coverage:` only if Step 8 produced one. Always end the block with Step 8b's two lines, after a blank line.
+- Include `Strength:` only with `--praise`, and `AC coverage:` only if Step 8 produced one. Always end the block with Step 8b's lines, each its own paragraph with a blank line before it, so GitHub does not join them. Bold each line's label up to and including its first colon: `**Staging:**`, `**Warning — Staging:**`, `**Acceptance tests:**`, `**Warning — Acceptance tests:**`; the rest of the line stays verbatim.
 - Cite `path:line` for every finding. If there are many, lead with the most important and keep each to one line.
 - With **no** surviving findings, output exactly:
 
