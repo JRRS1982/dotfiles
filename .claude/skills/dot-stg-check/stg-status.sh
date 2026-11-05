@@ -10,6 +10,9 @@
 # Prints exactly two lines, `Staging: ...` and `Acceptance tests...`.
 # A line that asks the author to act starts with `Warning — `.
 # Read-only: every call is a GET.
+#
+# Runs on macOS's stock bash 3.2 and BSD tools as well as GNU: no mapfile,
+# negative array indexes, `grep -P`, or `paste` without a file operand.
 
 set -euo pipefail
 
@@ -26,7 +29,7 @@ repo="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
 # Commits oldest-first, head last.
 commits=()
 if pr_commits="$(gh pr view ${pr:+"$pr"} --json commits -q '.commits[].oid' 2>/dev/null)" && [ -n "$pr_commits" ]; then
-  mapfile -t commits <<<"$pr_commits"
+  while IFS= read -r sha; do commits+=("$sha"); done <<<"$pr_commits"
 else
   base=""
   for candidate in origin/main origin/master; do
@@ -37,14 +40,16 @@ else
     echo "Acceptance tests: unknown — see the Staging line."
     exit 0
   fi
-  mapfile -t commits < <(git rev-list --reverse "$(git merge-base "$base" HEAD)..HEAD")
+  while IFS= read -r sha; do
+    [ -n "$sha" ] && commits+=("$sha")
+  done < <(git rev-list --reverse "$(git merge-base "$base" HEAD)..HEAD")
   # Already on the base (a merged branch, a detached snapshot): HEAD alone.
   [ "${#commits[@]}" -eq 0 ] && commits=("$(git rev-parse HEAD)")
 fi
 
-head_sha="${commits[-1]}"
+head_sha="${commits[${#commits[@]}-1]}"
 short() { printf '%s' "${1:0:8}"; }
-comma_list() { paste -sd',' | sed 's/,/, /g'; }
+comma_list() { paste -sd',' - | sed 's/,/, /g'; }
 
 # gh prints the error body to stdout on a 404, so discard output on failure.
 circleci_config="$(
@@ -66,7 +71,7 @@ config_jobs="$(
 # even when the config cannot be read.
 config_gates="$(
   awk -F'\t' '$2 == "approval" {print $1}' <<<"$config_jobs" | sort -u |
-    sed -E 's/<<[^>]*>>/[^ ]*/g' | paste -sd'|' || true
+    sed -E 's/<<[^>]*>>/[^ ]*/g' | paste -sd'|' - || true
 )"
 gate_re="$GATE_NAME_RE"
 [ -n "$config_gates" ] && gate_re="^($config_gates)\$|$GATE_NAME_RE"
@@ -97,8 +102,8 @@ rows_of() { awk -F'\t' -v k="$2" '$1 == k' <<<"$1"; }
 overall() {
   local rows="$1"
   [ -z "$rows" ] && { echo none; return; }
-  if grep -qP '\t(failure|error)\t' <<<"$rows"; then echo failed
-  elif grep -qP '\tpending\t' <<<"$rows"; then echo running
+  if awk -F'\t' '$3 == "failure" || $3 == "error" { f = 1 } END { exit !f }' <<<"$rows"; then echo failed
+  elif awk -F'\t' '$3 == "pending" { f = 1 } END { exit !f }' <<<"$rows"; then echo running
   else echo passed
   fi
 }
@@ -189,7 +194,7 @@ report_acceptance() {
     return
   fi
 
-  deploys="$(awk -F'\t' '$1 == "staging" && $3 == "success" {print $2}' <<<"$head_rows" | paste -sd',')"
+  deploys="$(awk -F'\t' '$1 == "staging" && $3 == "success" {print $2}' <<<"$head_rows" | paste -sd',' -)"
   jobs=""
   [ -n "$deploys" ] && jobs="$(acceptance_jobs "$deploys")"
   url="$(first_url "$(rows_of "$head_rows" acceptance)$(rows_of "$head_rows" acceptance-gate)")"
@@ -216,8 +221,11 @@ report_acceptance() {
       pending) running+=("$(suite <<<"$job")") ;;
       *)
         not_run+=("$(suite <<<"$job")")
-        IFS=',' read -ra g <<<"$job_gates"
-        gates_needed+=("${g[@]}") ;;
+        # bash 3.2 treats "${g[@]}" of an empty array as unset under set -u.
+        if [ -n "$job_gates" ]; then
+          IFS=',' read -ra g <<<"$job_gates"
+          gates_needed+=("${g[@]}")
+        fi ;;
     esac
   done <<<"$jobs"
 
@@ -240,7 +248,7 @@ report_acceptance() {
     parts+=("not run: $(printf '%s\n' "${not_run[@]}" | comma_list)$approve")
   fi
   local summary
-  summary="$(printf '%s\n' "${parts[@]}" | paste -sd';' | sed 's/;/; /g')"
+  summary="$(printf '%s\n' "${parts[@]}" | paste -sd';' - | sed 's/;/; /g')"
 
   if (( ${#failed[@]} + ${#not_run[@]} )); then
     echo "Warning — Acceptance tests: ${#passed[@]}/$total passed $target — $summary. Cover the rest before merging.${url:+ $url}"
